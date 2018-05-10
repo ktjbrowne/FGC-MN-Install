@@ -1,11 +1,9 @@
 #!/bin/bash
 clear
 
-# Set these to change the version of fantasygold to install
+# Set these to change the version of FantasyGold to install
 TARBALLURL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/1.2.4/FantasyGold-1.2.4-Linux-x64.tar.gz"
 TARBALLNAME="FantasyGold-1.2.4-Linux-x64.tar.gz"
-#BOOTSTRAPURL="https://github.com/fantasygold-crypto/fantasygold/releases/download/1.2.4/bootstrap.dat.zip"
-#BOOTSTRAPARCHIVE="bootstrap.dat.zip"
 FGCVERSION="1.2.4"
 
 # Check if we are root
@@ -39,14 +37,13 @@ EXTERNALIP=`dig +short myip.opendns.com @resolver1.opendns.com`
 clear
 
 echo "
-
     ___T_
    | o o |
    |__-__|
    /| []|\\
  ()/|___|\()
     |_|_|
-    /_|_\  ------- MASTERNODE INSTALLER v2 -------+
+    /_|_\  ------- MASTERNODE INSTALLER v2.1 -------+
  |                                                |
  |You can choose between two installation options:|::
  |             default and advanced.              |::
@@ -65,7 +62,6 @@ echo "
  |                                                |::
  +------------------------------------------------+::
    ::::::::::::::::::::::::::::::::::::::::::::::::::
-
 "
 
 sleep 5
@@ -74,11 +70,11 @@ read -e -p "Use the Advanced Installation? [N/y] : " ADVANCED
 
 if [[ ("$ADVANCED" == "y" || "$ADVANCED" == "Y") ]]; then
 
-USER=FantasyGold
+USER=fantasygold
 
 adduser $USER --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password > /dev/null
 
-echo "" && echo 'Added user "FantasyGold"' && echo ""
+echo "" && echo 'Added user "fantasygold"' && echo ""
 sleep 1
 
 else
@@ -93,7 +89,6 @@ read -e -p "Server IP Address: " -i $EXTERNALIP -e IP
 read -e -p "Masternode Private Key (e.g. 7edfjLCUzGczZi3JQw8GHp434R9kNY33eFyMGeKRymkB56G4324h # THE KEY YOU GENERATED EARLIER) : " KEY
 read -e -p "Install Fail2ban? [Y/n] : " FAIL2BAN
 read -e -p "Install UFW and configure ports? [Y/n] : " UFW
-read -e -p "Do you want to use our bootstrap file to speed the syncing process? [Y/n] : " BOOTSTRAP
 
 clear
 
@@ -123,13 +118,12 @@ if [[ ("$UFW" == "y" || "$UFW" == "Y" || "$UFW" == "") ]]; then
   ufw default allow outgoing
   ufw allow ssh
   ufw allow 57810/tcp
-  ufw allow 57814/tcp
   yes | ufw enable
 fi
 
-# Install fantasygold daemon
+# Install FantasyGold daemon
 wget $TARBALLURL
-tar -xzvf $TARBALLNAME && mv bin FantasyGold-$FGCVERSION
+tar -xzvf $TARBALLNAME && mv bin fantasygold-$FGCVERSION
 rm $TARBALLNAME
 cp ./fantasygold-$FGCVERSION/fantasygoldd /usr/local/bin
 cp ./fantasygold-$FGCVERSION/fantasygold-cli /usr/local/bin
@@ -164,9 +158,10 @@ masternode=1
 EOL
 chmod 0600 $USERHOME/.fantasygold/fantasygold.conf
 chown -R $USER:$USER $USERHOME/.fantasygold
+
 sleep 1
 
-cat > /etc/systemd/system/fantasygoldd.service << EOL
+cat > /etc/systemd/system/fantasygold.service << EOL
 [Unit]
 Description=fantasygoldd
 After=network.target
@@ -186,14 +181,10 @@ sudo systemctl start fantasygoldd
 clear
 
 cat << EOL
-
 Now, you need to start your masternode. Please go to your desktop wallet and
 enter the following line into your debug console:
-
 startmasternode alias false <mymnalias>
-
 where <mymnalias> is the name of your masternode alias (without brackets)
-
 EOL
 
 read -p "Press any key to continue after you've done that. " -n1 -s
