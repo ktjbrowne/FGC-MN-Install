@@ -125,9 +125,9 @@ fi
 wget $TARBALLURL
 tar -xzvf $TARBALLNAME && mv bin fantasygold-$FGCVERSION
 rm $TARBALLNAME
-cp ./fantasygold-$FGCVERSION/fantasygoldd /usr/local/bin
-cp ./fantasygold-$FGCVERSION/fantasygold-cli /usr/local/bin
-cp ./fantasygold-$FGCVERSION/fantasygold-tx /usr/local/bin
+cp ./fantasygoldd /usr/local/bin
+cp ./fantasygold-cli /usr/local/bin
+cp ./fantasygold-tx /usr/local/bin
 rm -rf fantasygold-$FGCVERSION
 
 # Create .fantasygold directory
@@ -177,6 +177,7 @@ WantedBy=multi-user.target
 EOL
 sudo systemctl enable fantasygoldd
 sudo systemctl start fantasygoldd
+sudo systemctl start fantasygoldd.service
 
 #clear
 
