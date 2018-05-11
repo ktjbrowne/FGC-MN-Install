@@ -85,13 +85,18 @@ CTRL+C to exit the masternode sync
 
 Copy and Paste the following lines one by one hitting enter after each one:
 
-```TMP1=`find / -name fantasygoldd````
-```TMP2=${TMP1%%"d"}````
-```mv $TMP2* /usr/local/bin````
+```
+TMP1=`find / -name fantasygoldd````
+```
+TMP2=${TMP1%%"d"}````
+```
+mv $TMP2* /usr/local/bin````
 
 Now 
-```cd /usr/local/bin/````
-```fantasygoldd````
+```
+cd /usr/local/bin/````
+```
+fantasygoldd````
 
 After the FantasyGold Deamon starts wait about 5 min then
 
