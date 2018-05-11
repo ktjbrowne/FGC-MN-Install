@@ -161,7 +161,7 @@ chown -R $USER:$USER $USERHOME/.fantasygold
 
 sleep 1
 
-cat > /etc/systemd/system/fantasygold.service << EOL
+cat > /etc/systemd/system/fantasygoldd.service << EOL
 [Unit]
 Description=fantasygoldd
 After=network.target
