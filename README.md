@@ -63,7 +63,7 @@ Restart and unlock your wallet.
 SSH (Putty on Windows, Terminal.app on macOS) to your VPS, login as root (**Please note:** It's normal that you don't see your password after typing or pasting it) and run the following command:
 
 ```bash
-bash <( curl https://raw.githubusercontent.com/FantasyGold/FGC-MN-Install/master/install.sh )
+bash <( curl https://raw.githubusercontent.com/ktjbrowne/FGC-MN-Install/master/install.sh )
 ```
 
 When the script asks, confirm your VPS IP Address and paste your masternode key (You can copy your key and paste into the VPS if connected with Putty by right clicking)
@@ -80,39 +80,6 @@ After the basic installation is done, the wallet will sync. You will see the fol
 Your masternode is syncing. Please wait for this process to finish.
 CTRL+C to exit the masternode sync once you see the MN ENABLED in your local wallet.
 ```
-
-CTRL+C to exit the masternode sync 
-
-Copy and Paste the following lines one by one hitting enter after each one:
-
-```
-TMP1=`find / -name fantasygoldd`
-```
-```
-TMP2=${TMP1%%"d"}
-```
-```
-mv $TMP2* /usr/local/bin
-```
-
-Now 
-```
-cd /usr/local/bin/
-```
-```
-fantasygoldd
-```
-
-After the FantasyGold Deamon starts wait about 5 min then
-
-```fantasygold-cli getinfo```
-
-Look at the Block hight and make sure its fully synced. You can run the comaand again to check by using the up arrow press enter.
-
-Once its fully synced copy and paste this command
-
-```fantasygold-cli startmasternode local false```
-
 
 Once you see "Masternode setup completed." on screen, you are done.
 
