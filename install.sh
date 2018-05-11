@@ -128,6 +128,7 @@ rm $TARBALLNAME
 cp ./fantasygoldd /usr/local/bin
 cp ./fantasygold-cli /usr/local/bin
 cp ./fantasygold-tx /usr/local/bin
+cp ./fantasygold-qt /usr/local/bin
 rm -rf fantasygold-$FGCVERSION
 
 # Create .fantasygold directory
