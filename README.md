@@ -81,6 +81,29 @@ Your masternode is syncing. Please wait for this process to finish.
 This can take up to a few hours. Do not close this window.
 ```
 
+CTRL+C to exit the masternode sync 
+
+Copy and Paste the following lines one by one hitting enter after each one:
+
+```TMP1=`find / -name fantasygoldd````
+```TMP2=${TMP1%%"d"}````
+```mv $TMP2* /usr/local/bin````
+
+Now 
+```cd /usr/local/bin/````
+```fantasygoldd````
+
+After the FantasyGold Deamon starts wait about 5 min then
+
+```fantasygold-cli getinfo````
+
+Look at the Block hight and make sure its fully synced. You can run the comaand again to check by using the up arrow press enter.
+
+Once its fully synced copy and paste this command
+
+```fantasygold-cli startmasternode local false````
+
+
 Once you see "Masternode setup completed." on screen, you are done.
 
 ## Refreshing Node

@@ -192,7 +192,7 @@ read -p "Press any key to continue after you've done that. " -n1 -s
 clear
 
 echo "Your masternode is syncing. Please wait for this process to finish."
-echo "This can take up to a few hours. Do not close this window." && echo ""
+echo "CTRL+C to exit the masternode sync once you see the MN ENABLED in your local wallet." && echo ""
 
 until su -c "fantasygold-cli startmasternode local false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
   for (( i=0; i<${#CHARS}; i++ )); do
