@@ -78,7 +78,7 @@ After the basic installation is done, the wallet will sync. You will see the fol
 
 ```
 Your masternode is syncing. Please wait for this process to finish.
-This can take up to a few hours. Do not close this window.
+CTRL+C to exit the masternode sync once you see the MN ENABLED in your local wallet.
 ```
 
 CTRL+C to exit the masternode sync 
