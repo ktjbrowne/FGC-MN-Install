@@ -89,7 +89,7 @@ Copy and Paste the following lines one by one hitting enter after each one:
 TMP1=`find / -name fantasygoldd`
 ```
 ```
-TMP2=${TMP1%%"d"}```
+TMP2=${TMP1%%"d"}
 ```
 ```
 mv $TMP2* /usr/local/bin
