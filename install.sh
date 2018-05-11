@@ -178,18 +178,16 @@ EOL
 sudo systemctl enable fantasygoldd
 sudo systemctl start fantasygoldd
 
-clear
+#clear
 
 cat << EOL
 Now, you need to start your masternode. Please go to your desktop wallet and
-enter the following line into your debug console:
-startmasternode alias false <mymnalias>
-where <mymnalias> is the name of your masternode alias (without brackets)
+select your masternode and click the start buttom.
 EOL
 
 read -p "Press any key to continue after you've done that. " -n1 -s
 
-clear
+#clear
 
 echo "Your masternode is syncing. Please wait for this process to finish."
 echo "CTRL+C to exit the masternode sync once you see the MN ENABLED in your local wallet." && echo ""
