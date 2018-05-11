@@ -123,7 +123,7 @@ fi
 
 # Install FantasyGold daemon
 wget $TARBALLURL
-tar -xzvf $TARBALLNAME && mv bin fantasygold-$FGCVERSION
+tar -xzvf $TARBALLNAME #&& mv bin fantasygold-$FGCVERSION
 rm $TARBALLNAME
 cp ./fantasygoldd /usr/local/bin
 cp ./fantasygold-cli /usr/local/bin
