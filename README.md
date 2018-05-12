@@ -81,7 +81,16 @@ Your masternode is syncing. Please wait for this process to finish.
 CTRL+C to exit the masternode sync once you see the MN ENABLED in your local wallet.
 ```
 
+Once its fully synced copy and paste this command
+```
+fantasygold-cli startmasternode local false
+```
 Once you see "Masternode setup completed." on screen, you are done.
+then
+```
+fantasygold-cli masternode status
+```
+
 
 ## Refreshing Node
 
