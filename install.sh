@@ -123,11 +123,12 @@ fi
 
 # Install FantasyGold daemon
 wget $TARBALLURL
-tar -xzvf $TARBALLNAME && mv bin fantasygold-$FGCVERSION
+tar -xzvf $TARBALLNAME #&& mv bin fantasygold-$FGCVERSION
 rm $TARBALLNAME
-cp ./fantasygold-$FGCVERSION/fantasygoldd /usr/local/bin
-cp ./fantasygold-$FGCVERSION/fantasygold-cli /usr/local/bin
-cp ./fantasygold-$FGCVERSION/fantasygold-tx /usr/local/bin
+cp ./fantasygoldd /usr/local/bin
+cp ./fantasygold-cli /usr/local/bin
+cp ./fantasygold-tx /usr/local/bin
+cp ./fantasygold-qt /usr/local/bin
 rm -rf fantasygold-$FGCVERSION
 
 # Create .fantasygold directory
@@ -161,7 +162,7 @@ chown -R $USER:$USER $USERHOME/.fantasygold
 
 sleep 1
 
-cat > /etc/systemd/system/fantasygold.service << EOL
+cat > /etc/systemd/system/fantasygoldd.service << EOL
 [Unit]
 Description=fantasygoldd
 After=network.target
@@ -177,19 +178,18 @@ WantedBy=multi-user.target
 EOL
 sudo systemctl enable fantasygoldd
 sudo systemctl start fantasygoldd
+sudo systemctl start fantasygoldd.service
 
-clear
+#clear
 
 cat << EOL
 Now, you need to start your masternode. Please go to your desktop wallet and
-enter the following line into your debug console:
-startmasternode alias false <mymnalias>
-where <mymnalias> is the name of your masternode alias (without brackets)
+select your masternode and click the start buttom.
 EOL
 
 read -p "Press any key to continue after you've done that. " -n1 -s
 
-clear
+#clear
 
 echo "Your masternode is syncing. Please wait for this process to finish."
 echo "CTRL+C to exit the masternode sync once you see the MN ENABLED in your local wallet." && echo ""
