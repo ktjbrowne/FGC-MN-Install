@@ -1,8 +1,12 @@
-## System requirements
+## Overall Requirements for running an Masternode
 
-The VPS you plan to install your masternode on needs to have at least 1GB of RAM and 10GB of free disk space. We do not recommend using servers who do not meet those criteria, and your masternode will not be stable.
+1- FGC Wallet installed on your local system, fully synced.
+  Please see Wallet-Install.txt
+2- Cloud Virtual Private Server (VPS) to install the Masternode.
 
-## Funding your Masternode
+
+## Funding your Masternode 
+This section should be performd on your local system wallet.
 
 * First, we will do the initial collateral TX and send exactly 10000 FGC to one of our addresses. To keep things sorted in case we setup more masternodes we will label the addresses we use.
 
@@ -17,6 +21,10 @@ The VPS you plan to install your masternode on needs to have at least 1GB of RAM
   - Once all addresses are created send 10000 FGC each to them. Ensure that you send exactly 10000 FGC and do it in a single transaction. You can double check where the coins are coming from by checking it via coin control usually, that's not an issue.
 
 * As soon as all transactions are done, we will wait for 15 confirmations. You can check this in your wallet or use the explorer. It should take around 30 minutes if all transaction have 15 confirmations
+
+## VPS System requirements
+
+The VPS you plan to install your masternode on needs to have at least 1GB of RAM and 10GB of free disk space. We do not recommend using servers who do not meet those criteria, and your masternode will not be stable.
 
 ## Installation & Setting up your Server
 
