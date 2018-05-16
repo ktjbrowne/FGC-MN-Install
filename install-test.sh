@@ -90,6 +90,10 @@ read -e -p "Masternode Private Key (e.g. 7edfjLCUzGczZi3JQw8GHp434R9kNY33eFyMGeK
 read -e -p "Install Fail2ban? [Y/n] : " FAIL2BAN
 read -e -p "Install UFW and configure ports? [Y/n] : " UFW
 
+#####Test Multi MN: Get MN Number v1
+read -e -p "Masternode Number: [0 bypass]" MNNUM
+PORT=5781$NMNUM
+
 clear
 
 # Generate random passwords
@@ -117,7 +121,7 @@ if [[ ("$UFW" == "y" || "$UFW" == "Y" || "$UFW" == "") ]]; then
   ufw default deny incoming
   ufw default allow outgoing
   ufw allow ssh
-  ufw allow 57810/tcp
+  ufw allow $PORT/tcp
   yes | ufw enable
 fi
 
@@ -129,20 +133,15 @@ cp ./fantasygoldd /usr/local/bin
 cp ./fantasygold-cli /usr/local/bin
 cp ./fantasygold-tx /usr/local/bin
 cp ./fantasygold-qt /usr/local/bin
-rm -rf fantasygold-$FGCVERSION
+#rm -rf fantasygold-$FGCVERSION
 
 # Create .fantasygold directory
-mkdir $USERHOME/.fantasygold
-
-# Install bootstrap file
-if [[ ("$BOOTSTRAP" == "y" || "$BOOTSTRAP" == "Y" || "$BOOTSTRAP" == "") ]]; then
-  echo "Installing bootstrap file..."
-  wget $BOOTSTRAPURL && unzip $BOOTSTRAPARCHIVE -d $USERHOME/.fantasygold/ && rm $BOOTSTRAPARCHIVE
-fi
+CONFDIR=$USERHOME/.fantasygold$MNNUM
+mkdir $CONFDIR
 
 # Create fantasygold.conf
-touch $USERHOME/.fantasygold/fantasygold.conf
-cat > $USERHOME/.fantasygold/fantasygold.conf << EOL
+touch $CONFDIR/fantasygold.conf
+cat > $CONFDIR/fantasygold.conf << EOL
 rpcuser=${RPCUSER}
 rpcpassword=${RPCPASSWORD}
 rpcallowip=127.0.0.1
@@ -152,33 +151,33 @@ daemon=1
 logtimestamps=1
 maxconnections=256
 externalip=${IP}
-bind=${IP}:57810
+bind=${IP}:${PORT}
 masternodeaddr=${IP}
 masternodeprivkey=${KEY}
 masternode=1
 EOL
-chmod 0600 $USERHOME/.fantasygold/fantasygold.conf
-chown -R $USER:$USER $USERHOME/.fantasygold
+chmod 0600 $CONFDIR/fantasygold.conf
+chown -R $USER:$USER $CONFDIR
 
 sleep 1
 
-cat > /etc/systemd/system/fantasygoldd.service << EOL
+cat > /etc/systemd/system/fantasygoldd$MNNUM.service << EOL
 [Unit]
-Description=fantasygoldd
+Description=fantasygoldd${MNNUM}
 After=network.target
 [Service]
 Type=forking
 User=${USER}
 WorkingDirectory=${USERHOME}
-ExecStart=/usr/local/bin/fantasygoldd -conf=${USERHOME}/.fantasygold/fantasygold.conf -datadir=${USERHOME}/.fantasygold
-ExecStop=/usr/local/bin/fantasygold-cli -conf=${USERHOME}/.fantasygold/fantasygold.conf -datadir=${USERHOME}/.fantasygold stop
+ExecStart=/usr/local/bin/fantasygoldd -conf=${CONFDIR}/fantasygold.conf -datadir=${CONFDIR}
+ExecStop=/usr/local/bin/fantasygold-cli -conf=${CONFDIR}/fantasygold.conf -datadir=${CONFDIR} stop
 Restart=on-abort
 [Install]
 WantedBy=multi-user.target
 EOL
 sudo systemctl enable fantasygoldd
 sudo systemctl start fantasygoldd
-sudo systemctl start fantasygoldd.service
+sudo systemctl start fantasygoldd$MNNUM.service
 
 #clear
 
@@ -194,7 +193,7 @@ read -p "Press any key to continue after you've done that. " -n1 -s
 echo "Your masternode is syncing. Please wait for this process to finish."
 echo "CTRL+C to exit the masternode sync once you see the MN ENABLED in your local wallet." && echo ""
 
-until su -c "fantasygold-cli startmasternode local false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
+until su -c "fantasygold-cli startmasternode disabled false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
   for (( i=0; i<${#CHARS}; i++ )); do
     sleep 2
     echo -en "${CHARS:$i:1}" "\r"
@@ -202,7 +201,7 @@ until su -c "fantasygold-cli startmasternode local false 2>/dev/null | grep 'suc
 done
 
 sleep 1
-su -c "/usr/local/bin/fantasygold-cli startmasternode local false" $USER
+su -c "/usr/local/bin/fantasygold-cli startmasternode disabled false" $USER
 sleep 1
 clear
 su -c "/usr/local/bin/fantasygold-cli masternode status" $USER
