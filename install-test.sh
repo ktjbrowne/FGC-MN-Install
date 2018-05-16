@@ -101,6 +101,7 @@ RPCUSER=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
 RPCPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
 # update packages and upgrade Ubuntu
+if [[ ("$MNNUM" == "0") ]]; then
 echo "Installing dependencies..."
 apt-get -qq update
 apt-get -qq upgrade
@@ -108,6 +109,7 @@ apt-get -qq autoremove
 apt-get -qq install wget htop unzip
 apt-get -qq install build-essential && apt-get -qq install libtool autotools-dev autoconf automake && apt-get -qq install libssl-dev && apt-get -qq install libboost-all-dev && apt-get -qq install software-properties-common && add-apt-repository -y ppa:bitcoin/bitcoin && apt update && apt-get -qq install libdb4.8-dev && apt-get -qq install libdb4.8++-dev && apt-get -qq install libminiupnpc-dev && apt-get -qq install libqt4-dev libprotobuf-dev protobuf-compiler && apt-get -qq install libqrencode-dev && apt-get -qq install git && apt-get -qq install pkg-config && apt-get -qq install libzmq3-dev
 apt-get -qq install aptitude
+fi
 
 # Install Fail2Ban
 if [[ ("$FAIL2BAN" == "y" || "$FAIL2BAN" == "Y" || "$FAIL2BAN" == "") ]]; then
@@ -125,6 +127,7 @@ if [[ ("$UFW" == "y" || "$UFW" == "Y" || "$UFW" == "") ]]; then
   yes | ufw enable
 fi
 
+if [[ ("$MNNUM" == "0") ]]; then
 # Install FantasyGold daemon
 wget $TARBALLURL
 tar -xzvf $TARBALLNAME #&& mv bin fantasygold-$FGCVERSION
@@ -134,6 +137,7 @@ cp ./fantasygold-cli /usr/local/bin
 cp ./fantasygold-tx /usr/local/bin
 cp ./fantasygold-qt /usr/local/bin
 #rm -rf fantasygold-$FGCVERSION
+fi
 
 # Create .fantasygold directory
 CONFDIR=$USERHOME/.fantasygold$MNNUM
@@ -175,8 +179,8 @@ Restart=on-abort
 [Install]
 WantedBy=multi-user.target
 EOL
-sudo systemctl enable fantasygoldd
-sudo systemctl start fantasygoldd
+sudo systemctl enable fantasygoldd$MNNUM
+sudo systemctl start fantasygoldd$MNNUM
 sudo systemctl start fantasygoldd$MNNUM.service
 
 #clear
@@ -193,7 +197,7 @@ read -p "Press any key to continue after you've done that. " -n1 -s
 echo "Your masternode is syncing. Please wait for this process to finish."
 echo "CTRL+C to exit the masternode sync once you see the MN ENABLED in your local wallet." && echo ""
 
-until su -c "fantasygold-cli startmasternode disabled false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
+until su -c "fantasygold-cli -conf=/root/.fantasygold1/fantasygold.conf -datadir=/root/.fantasygold1/ startmasternode local false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
   for (( i=0; i<${#CHARS}; i++ )); do
     sleep 2
     echo -en "${CHARS:$i:1}" "\r"
@@ -201,10 +205,10 @@ until su -c "fantasygold-cli startmasternode disabled false 2>/dev/null | grep '
 done
 
 sleep 1
-su -c "/usr/local/bin/fantasygold-cli startmasternode disabled false" $USER
+su -c "/usr/local/bin/fantasygold-cli -conf=/root/.fantasygold1/fantasygold.conf -datadir=/root/.fantasygold1/ startmasternode local false" $USER
 sleep 1
 clear
-su -c "/usr/local/bin/fantasygold-cli masternode status" $USER
+su -c "/usr/local/bin/fantasygold-cli -conf=/root/.fantasygold1/fantasygold.conf -datadir=/root/.fantasygold1/ masternode status" $USER
 sleep 5
 
 echo "" && echo "Masternode setup completed." && echo ""
