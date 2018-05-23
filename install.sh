@@ -182,24 +182,32 @@ sudo systemctl start fantasygoldd.service
 
 #clear
 
-cat << EOL
-Now, you need to start your masternode. Please go to your desktop wallet and
-select your masternode and click the start buttom.
-EOL
-
-read -p "Press any key to continue after you've done that. " -n1 -s
-
 #clear
-
-echo "Your masternode is syncing. Please wait for this process to finish."
-echo "CTRL+C to exit the masternode sync once you see the MN ENABLED in your local wallet." && echo ""
+#echo "Your masternode is syncing. Please wait for this process to finish."
 
 until su -c "fantasygold-cli startmasternode local false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
   for (( i=0; i<${#CHARS}; i++ )); do
-    sleep 2
-    echo -en "${CHARS:$i:1}" "\r"
+    sleep 5
+    #echo -en "${CHARS:$i:1}" "\r"
+    clear
+    echo "Service Started. Your masternode is syncing. 
+    When Current = Synced then select your MN in the local wallet and start it. Script should auto finish here."
+    echo "Current Block: "
+    su -c "curl https://fantasygold.network/api/getblockcount" $USER
+    echo "Synced Blocks: "
+    su -c "fantasygold-cli getblockcount" $USER
   done
 done
+
+#echo "Your masternode is syncing. Please wait for this process to finish."
+#echo "CTRL+C to exit the masternode sync once you see the MN ENABLED in your local wallet." && echo ""
+
+#until su -c "fantasygold-cli startmasternode local false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
+#  for (( i=0; i<${#CHARS}; i++ )); do
+#    sleep 2
+#    echo -en "${CHARS:$i:1}" "\r"
+#  done
+#done
 
 sleep 1
 su -c "/usr/local/bin/fantasygold-cli startmasternode local false" $USER
