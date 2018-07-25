@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 # Run this file
-# bash <(wget -qO- -o- https://goo.gl/jKGkJ1)
+#bash <( curl https://raw.githubusercontent.com/FantasyGold/FGC-MN-Install/master/install-multi-mn.sh )
 
-COIN_SYMBOL="HTRC"
-COIN_NAME="HighTemperatured"
-COIN_DAEMON="hightemperatured"
-COIN_CLI="hightemperatured"
-COIN_APP_URL="https://github.com/htrcoin/htrcoin/releases/download/v1020/HTRC_Headless_Linux_v1020.zip"
-COIN_CONFIG_FOLDER=".HighTemperature"
-COIN_CONFIG_FILE="HighTemperature.conf"
-COIN_BLOCK_COUNT_URL="http://explorer.htrcoin.com/api/getblockcount"
+COIN_SYMBOL="FGC"
+COIN_NAME="FantasyGold"
+COIN_DAEMON="fantasygoldd"
+COIN_CLI="fantasygold-cli"
+COIN_APP_URL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/1.3.0/FantasyGold-1.3.0-Linux-x64.tar.gz"
+COIN_CONFIG_FOLDER=".fantasygold"
+COIN_CONFIG_FILE="fantasygold.conf"
+COIN_BLOCK_COUNT_URL="http://fantasygold.network/api/getblockcount"
 DONATION_ADDRESS="HFNinoTzSh5uSbLon248RE3NqZua5dYmfS"
-DEFAULT_PORT=11368
-EXTRACT_CMD="unzip artifact -d /tmp/extract"
-#EXTRACT_CMD="tar xvf artifact -C /tmp/extract"
+DEFAULT_PORT=57810
+#EXTRACT_CMD="unzip artifact -d /tmp/extract"
+EXTRACT_CMD="tar xvf artifact -C /tmp/extract"
 
 # Chars for spinner.
 SPINNER="/-\\|"
@@ -123,7 +123,7 @@ coinBootstrap() {
   #cp /tmp/blk0001.dat "/home/${USERNAME}/${COIN_CONFIG_FOLDER}/"
   #coinStart
 
-  echo "Initializing blocks, this may take over an hour to complete."
+  echo "Initializing blocks, this may take some time to complete."
 
   # Monitor the block count synchronization and make sure everything is good
   local EXPLORER_BLOCK_COUNT=$(curl -s "$COIN_BLOCK_COUNT_URL")
@@ -226,7 +226,7 @@ if [ ${FREEPSPACE} -lt 2097152 ]; then
 fi
 
 if [ ! -f /swapfile  ]; then
-  fallocate -l 256M /swapfile
+  fallocate -l 1G /swapfile
   chmod 600 /swapfile
   mkswap /swapfile
   swapon /swapfile
@@ -237,20 +237,14 @@ echo -e "\\e[0m"
 clear
 
 cat << "EOF"
-System validation completed. Installing HTRC
+System validation completed. Installing FGC
 
-      ___           ___           ___           ___
-     /\__\         /\  \         /\  \         /\  \
-    /:/  /         \:\  \       /::\  \       /::\  \
-   /:/__/           \:\  \     /:/\:\  \     /:/\:\  \
-  /::\  \ ___       /::\  \   /::\~\:\  \   /:/  \:\  \
- /:/\:\  /\__\     /:/\:\__\ /:/\:\ \:\__\ /:/__/ \:\__\
- \/__\:\/:/  /    /:/  \/__/ \/_|::\/:/  / \:\  \  \/__/
-      \::/  /    /:/  /         |:|::/  /   \:\  \
-      /:/  /     \/__/          |:|\/__/     \:\  \
-     /:/  /                     |:|  |        \:\__\
-     \/__/                       \|__|         \/__/
-
+    ______            __                   ______      __    __
+   / ____/___ _____  / /_____ ________  __/ ____/___  / /___/ /
+  / /_  / __ `/ __ \/ __/ __ `/ ___/ / / / / __/ __ \/ / __  / 
+ / __/ / /_/ / / / / /_/ /_/ (__  ) /_/ / /_/ / /_/ / / /_/ /  
+/_/    \__,_/_/ /_/\__/\__,_/____/\__, /\____/\____/_/\__,_/   
+                                 /____/                        
 
 EOF
 
@@ -535,232 +529,7 @@ fi
 
 ## TODO: Grab this off of the auto-refreshed compiled results of all the admin mn owners
 ADDNODES=`printf '
-addnode=103.48.194.110
-addnode=103.83.202.224:49854
-addnode=104.168.102.129
-addnode=104.238.174.247
-addnode=104.254.244.175
-addnode=104.254.247.188
-addnode=107.172.221.103:51840
-addnode=108.160.128.66
-addnode=109.226.228.253:65312
-addnode=114.35.46.44:11295
-addnode=115.68.224.208
-addnode=115.91.55.99
-addnode=117.1.41.48:5997
-addnode=128.199.164.63
-addnode=128.199.167.189
-addnode=128.199.167.189:40532
-addnode=128.199.89.201
-addnode=138.197.219.86
-addnode=139.228.196.242
-addnode=139.59.183.85
-addnode=139.99.193.132
-addnode=140.82.36.103
-addnode=140.82.39.52:60648
-addnode=140.82.6.54
-addnode=140.82.8.245:51532
-addnode=140.82.8.245:52190
-addnode=141.134.59.230:51463
-addnode=14.241.167.100:54053
-addnode=142.4.209.40
-addnode=144.202.19.157
-addnode=144.202.77.15
-addnode=145.239.83.81
-addnode=145.239.91.162
-addnode=145.239.93.250
-addnode=145.239.94.76
-addnode=149.147.202.206:50652
-addnode=149.28.105.14
-addnode=149.28.110.238:37752
-addnode=149.28.112.179:39936
-addnode=149.28.112.179:40678
-addnode=149.28.133.237
-addnode=149.28.146.29
-addnode=149.28.148.247:50056
-addnode=149.28.149.164
-addnode=149.28.153.144:42844
-addnode=149.28.224.202:38652
-addnode=149.28.75.199:57521
-addnode=149.56.140.181
-addnode=149.56.140.195
-addnode=149.56.47.58
-addnode=158.69.1.60
-addnode=158.69.216.58
-addnode=158.69.219.103
-addnode=159.65.127.61
-addnode=159.65.148.101
-addnode=159.65.66.83
-addnode=159.89.167.168
-addnode=159.89.167.214
-addnode=159.89.167.214:49440
-addnode=159.89.227.253
-addnode=165.227.154.227
-addnode=165.227.236.55
-addnode=165.246.196.141:59207
-addnode=167.114.128.238
-addnode=167.114.128.239
-addnode=172.110.9.26:46626
-addnode=172.245.205.102
-addnode=173.199.90.224
-addnode=173.26.146.208
-addnode=173.82.255.191:55122
-addnode=176.223.139.234
-addnode=178.128.223.83
-addnode=178.217.107.66:64309
-addnode=178.62.74.129
-addnode=18.188.225.164
-addnode=184.22.213.247:59847
-addnode=185.205.209.25:53870
-addnode=185.227.110.73:47682
-addnode=185.243.247.53:50130
-addnode=185.40.30.84
-addnode=185.53.191.136
-addnode=185.7.80.109:49383
-addnode=186.31.94.229
-addnode=188.210.59.214:14975
-addnode=188.214.135.105
-addnode=192.210.132.14
-addnode=194.183.32.212
-addnode=195.14.119.203:59303
-addnode=195.201.34.173
-addnode=195.3.144.66
-addnode=195.3.144.66:41002
-addnode=195.3.144.66:52324
-addnode=195.3.144.68
-addnode=195.3.144.71
-addnode=196.54.41.44:61537
-addnode=198.13.52.143
-addnode=198.245.53.175
-addnode=199.247.1.172
-addnode=199.247.20.178
-addnode=199.247.5.231
-addnode=199.247.6.114
-addnode=202.182.103.202
-addnode=202.182.116.197
-addnode=202.182.117.217:52622
-addnode=202.183.247.119:53112
-addnode=204.48.21.247
-addnode=206.189.113.162
-addnode=206.189.173.231
-addnode=206.189.190.33
-addnode=206.189.213.158
-addnode=207.148.111.196
-addnode=207.148.14.65
-addnode=207.148.15.251
-addnode=207.148.2.77
-addnode=207.148.75.241
-addnode=207.246.119.168
-addnode=207.246.79.22
-addnode=207.246.85.125
-addnode=209.222.30.153
-addnode=209.246.143.216
-addnode=209.250.235.11
-addnode=211.194.3.38
-addnode=212.15.46.188:52072
-addnode=212.237.26.59
-addnode=212.237.54.213
-addnode=212.24.108.232
-addnode=212.47.229.5
-addnode=212.73.150.47
-addnode=213.227.140.33
-addnode=217.69.2.71
-addnode=217.69.8.154:44190
-addnode=219.240.57.40
-addnode=35.173.189.120:52587
-addnode=35.200.150.42
-addnode=35.202.141.43:47962
-addnode=36.71.235.193:3849
-addnode=37.187.140.168
-addnode=37.252.15.118:54305
-addnode=45.119.83.174
-addnode=45.32.156.36
-addnode=45.32.172.145
-addnode=45.32.185.163
-addnode=45.32.221.112
-addnode=45.32.5.37
-addnode=45.55.136.169
-addnode=45.63.106.45
-addnode=45.63.49.239
-addnode=45.76.100.146
-addnode=45.76.129.106:49616
-addnode=45.76.130.14
-addnode=45.76.35.211
-addnode=45.76.88.100
-addnode=45.77.161.128
-addnode=45.77.215.166
-addnode=45.77.226.215
-addnode=45.77.226.249:47966
-addnode=45.77.54.74:37420
-addnode=45.77.9.155
-addnode=46.101.11.127
-addnode=46.125.250.38:18219
-addnode=46.97.32.26:48131
-addnode=47.75.39.72
-addnode=50.59.59.139
-addnode=51.15.225.249
-addnode=51.15.255.127
-addnode=51.15.35.174
-addnode=5.132.191.184
-addnode=51.38.48.57
-addnode=51.38.49.168
-addnode=5.164.136.5
-addnode=5.249.144.172:44702
-addnode=54.38.231.221:60557
-addnode=54.39.96.188
-addnode=54.39.96.190
-addnode=59.63.206.65:25302
-addnode=62.235.30.214:49322
-addnode=64.154.38.225
-addnode=66.70.188.129
-addnode=66.70.188.206
-addnode=66.70.188.79
-addnode=67.205.177.248
-addnode=67.205.190.179
-addnode=68.190.114.2
-addnode=68.39.64.242:57865
-addnode=69.163.87.169:49950
-addnode=70.171.196.236
-addnode=76.64.187.145:50336
-addnode=77.55.221.10
-addnode=77.81.230.117:41790
-addnode=78.24.216.162
-addnode=79.165.149.72:61790
-addnode=80.211.159.250:54768
-addnode=80.211.31.246
-addnode=80.211.79.219
-addnode=80.211.86.59
-addnode=80.240.19.163
-addnode=80.240.25.122
-addnode=80.240.25.171
-addnode=81.177.167.10:62503
-addnode=81.82.51.7:60313
-addnode=82.230.105.102
-addnode=83.28.221.64:64104
-addnode=85.121.197.58
-addnode=85.121.197.58:36842
-addnode=85.203.44.87:49503
-addnode=86.1.53.71
-addnode=88.100.212.7:52439
-addnode=88.129.214.234
-addnode=88.99.13.48:60252
-addnode=89.40.15.90
-addnode=89.40.6.44
-addnode=94.230.141.253:55469
-addnode=95.179.131.87
-addnode=95.179.140.47
-addnode=95.179.142.44
-addnode=95.179.151.182
-addnode=95.179.151.250
-addnode=95.179.164.2:54254
-addnode=95.179.165.154
-addnode=95.46.44.130:58578
-addnode=95.46.45.253:61802
-addnode=95.97.92.170:58032
-addnode=96.43.131.75
-addnode=96.43.131.78:6131
-addnode=98.219.16.3
-addnode=98.5.223.1
+
 '`
 
 # Make sure firewall and some utilities is installed.
@@ -790,8 +559,11 @@ ${EXTRACT_CMD}
 mkdir -p /home/${USERNAME}/.local/bin
 find /tmp/extract -type f | xargs chmod 755
 find /tmp/extract -type f -exec mv -- "{}" /home/${USERNAME}/.local/bin \;
+find /tmp/extract -type f -exec mv -- "{}" /home/${USERNAME}/ \;
 rm -rf /tmp/extract
 chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.local
+chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
+
 
 # Find open port.
 echo "Searching for an unused port"
