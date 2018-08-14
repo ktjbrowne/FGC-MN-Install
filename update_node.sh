@@ -38,8 +38,9 @@ fi
 
 echo "Upgrading fantasygold..."
 #mkdir ./fantasygold-temp #&& cd ./fantasygold-temp
+rm *
 wget $TARBALLURL
-unzip $TARBALLNAME #&& mv bin fantasygold-$FGCVERSION
+tar -vf $TARBALLNAME #&& mv bin fantasygold-$FGCVERSION
 rm $TARBALLNAME
 
 cp -f ./fantasygoldd /usr/local/bin
