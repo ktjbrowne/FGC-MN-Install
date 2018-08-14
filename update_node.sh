@@ -40,7 +40,7 @@ echo "Upgrading fantasygold..."
 #mkdir ./fantasygold-temp #&& cd ./fantasygold-temp
 rm *
 wget $TARBALLURL
-tar -xvzf $TARBALLNAME #&& mv bin fantasygold-$FGCVERSION
+tar xvf $TARBALLNAME #&& mv bin fantasygold-$FGCVERSION
 rm $TARBALLNAME
 
 cp -f ./fantasygoldd /usr/local/bin
