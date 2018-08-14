@@ -109,5 +109,5 @@ To update your node please run this command and follow the instructions.
 Please note that this script must be run as root.
 
 ```
-bash <( curl https://raw.githubusercontent.com/FantasyGoldCoin/FGC-MN-Install/master/update_node.sh )
+bash <( curl https://raw.githubusercontent.com/ktjbrowne/FGC-MN-Install/master/update_node.sh )
 ```
