@@ -78,7 +78,8 @@ Restart=on-abort
 WantedBy=multi-user.target
 EOL
   sudo systemctl enable fantasygoldd
-  sudo systemctl start fantasygoldd.service
+  #sudo systemctl start fantasygoldd.service
+  ./usr/local/bin/fantasygoldd -reindex
 fi
 
 sleep 4
