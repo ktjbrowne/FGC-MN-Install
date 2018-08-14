@@ -1,7 +1,7 @@
 #!/bin/bash
 clear
 
-TARBALLURL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/1.2.5/FantasyGold-1.2.5-Linux-x64.tar.gz"
+TARBALLURL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/v1.2.5/FantasyGold-1.2.5-Linux-x64.tar.gz"
 TARBALLNAME="FantasyGold-1.2.5-Linux-x64.tar.gz"
 FGCVERSION="1.2.5"
 
@@ -39,7 +39,7 @@ fi
 echo "Upgrading fantasygold..."
 #mkdir ./fantasygold-temp #&& cd ./fantasygold-temp
 wget $TARBALLURL
-tar -xzvf $TARBALLNAME #&& mv bin fantasygold-$FGCVERSION
+unzip $TARBALLNAME #&& mv bin fantasygold-$FGCVERSION
 rm $TARBALLNAME
 
 cp -f ./fantasygoldd /usr/local/bin
