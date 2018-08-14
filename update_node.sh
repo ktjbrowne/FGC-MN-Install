@@ -78,10 +78,16 @@ Restart=on-abort
 WantedBy=multi-user.target
 EOL
   sudo systemctl enable fantasygoldd
-  #sudo systemctl start fantasygoldd.service
-  ./usr/local/bin/fantasygoldd -reindex
+  sudo systemctl start fantasygoldd.service
+
 fi
 
+sleep 4
+./usr/local/bin/fantasygold-cli stop
+echo "########reindexing"
+sleep 4
+echo "########starting"
+./usr/local/bin/fantasygoldd -reindex
 sleep 4
 
 until su -c "fantasygold-cli startmasternode local false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
