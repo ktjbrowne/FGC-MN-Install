@@ -1,13 +1,22 @@
 #!/bin/bash
+clear
 
-TARBALLURL="https://github.com/MajorLeagueDFS/FantasyGold/releases/download/1.0.0/linux.tar.gz"
-TARBALLNAME="linux.tar.gz"
-FGCVERSION="1.0.0"
+TARBALLURL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/1.3.0/FantasyGold-1.3.0-Linux-x64.tar.gz"
+TARBALLNAME="FantasyGold-1.3.0-Linux-x64.tar.gz"
+FGCVERSION="1.3.0"
 
 CHARS="/-\|"
 
 clear
-echo "This script will update your masternode to version $FGCVERSION"
+echo "
+ +----------------------------------------------------script.v1.2+::
+ | FantasyGold Masternode Update Script Version: $FGCVERSION           |::
+ |                                                               |::
+ | This script is complemintary to the original install script.  |::
+ | If you manually installed, please update your VPS manually.   |::
+ |                                                               |::
+ +---------------------------------------------------------------+::
+"
 read -p "Press Ctrl-C to abort or any other key to continue. " -n1 -s
 clear
 
@@ -16,7 +25,8 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
-USER=`ps u $(pgrep fantasygoldd) | grep fantasygoldd | cut -d " " -f 1`
+#USER=`ps u $(pgrep fantasygoldd) | grep fantasygoldd | cut -d " " -f 1`
+USER=root
 USERHOME=`eval echo "~$USER"`
 
 echo "Shutting down masternode..."
@@ -26,20 +36,27 @@ else
   su -c "fantasygold-cli stop" $USER
 fi
 
-echo "Installing fantasygold 1.2.3..."
-mkdir ./fantasygold-temp && cd ./fantasygold-temp
+echo "Upgrading fantasygold..."
+#mkdir ./fantasygold-temp #&& cd ./fantasygold-temp
 wget $TARBALLURL
-tar -xzvf $TARBALLNAME && mv bin fantasygold-$FGCVERSION
-yes | cp -rf ./fantasygold-$FGCVERSION/fantasygoldd /usr/local/bin
-yes | cp -rf ./fantasygold-$FGCVERSION/fantasygold-cli /usr/local/bin
-cd ..
-rm -rf ./fantasygold-temp
+tar -xzvf $TARBALLNAME #&& mv bin fantasygold-$FGCVERSION
+rm $TARBALLNAME
 
-if [ -e /usr/bin/fantasygoldd ];then rm -rf /usr/bin/fantasygoldd; fi
-if [ -e /usr/bin/fantasygold-cli ];then rm -rf /usr/bin/fantasygold-cli; fi
-if [ -e /usr/bin/fantasygold-tx ];then rm -rf /usr/bin/fantasygold-tx; fi
+cp -f ./fantasygoldd /usr/local/bin
+cp -f ./fantasygold-cli /usr/local/bin
+cp -f ./fantasygold-tx /usr/local/bin
+rm test*
+rm fan*-qt
+#cd ..
+#rm -rf ./fantasygold-temp
 
-sed -i '/^addnode/d' $USERHOME/.fantasygold/fantasygold.conf
+#if [ -e /usr/bin/fantasygoldd ];then rm -rf /usr/bin/fantasygoldd; fi
+#if [ -e /usr/bin/fantasygold-cli ];then rm -rf /usr/bin/fantasygold-cli; fi
+#if [ -e /usr/bin/fantasygold-tx ];then rm -rf /usr/bin/fantasygold-tx; fi
+
+sed -i '/^addnode/d' ./.fantasygold/fantasygold.conf
+chmod 0600 ./.fantasygold/fantasygold.conf
+#chown -R $USER:$USER ./.fantasygold
 
 echo "Restarting fantasygold daemon..."
 if [ -e /etc/systemd/system/fantasygoldd.service ]; then
@@ -60,28 +77,29 @@ Restart=on-abort
 WantedBy=multi-user.target
 EOL
   sudo systemctl enable fantasygoldd
-  sudo systemctl start fantasygoldd
+  sudo systemctl start fantasygoldd.service
 fi
-clear
 
-echo "Your masternode is syncing. Please wait for this process to finish."
+sleep 4
 
 until su -c "fantasygold-cli startmasternode local false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
   for (( i=0; i<${#CHARS}; i++ )); do
-    sleep 2
-    echo -en "${CHARS:$i:1}" "\r"
+    sleep 5
+    #echo -en "${CHARS:$i:1}" "\r"
+    clear
+    echo "Service Started. Your masternode is syncing. 
+    When Current = Synced then select your MN in the local wallet and start it. 
+    Script should auto finish here."
+    echo "
+    Current Block: "
+    su -c "curl https://fantasygold.network/api/getblockcount" $USER
+    echo "
+    Synced Blocks: "
+    su -c "fantasygold-cli getblockcount" $USER
   done
 done
 
-su -c "fantasygold-cli masternode status" $USER
+su -c "/usr/lcoal/bin/fantasygold-cli getinfo" $USER
+su -c "/usr/local/bin/fantasygold-cli masternode status" $USER
+echo "" && echo "Masternode setup completed." && echo ""
 
-cat << EOL
-
-Masternode update completed. Please go to your desktop wallet and enter
-the following line into your debug console:
-
-    startmasternode alias false <mymnalias>
-
-where <mymnalias> is the name of your masternode alias (without brackets)
-
-EOL
