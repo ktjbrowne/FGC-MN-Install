@@ -1,9 +1,9 @@
 #!/bin/bash
 clear
 
-TARBALLURL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/1.3.0/FantasyGold-1.3.0-Linux-x64.tar.gz"
-TARBALLNAME="FantasyGold-1.3.0-Linux-x64.tar.gz"
-FGCVERSION="1.3.0"
+TARBALLURL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/1.3.0/FantasyGold-1.2.5-Linux-x64.tar.gz"
+TARBALLNAME="FantasyGold-1.2.5-Linux-x64.tar.gz"
+FGCVERSION="1.2.5"
 
 CHARS="/-\|"
 
