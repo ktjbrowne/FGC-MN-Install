@@ -9,7 +9,7 @@ CHARS="/-\|"
 
 clear
 echo "
- +----------------------------------------------------script.v1.3+::
+ +----------------------------------------------------script.v1.4+::
  | FantasyGold Masternode Update Script Version: $FGCVERSION           |::
  |                                                               |::
  | This script is complemintary to the original install script.  |::
@@ -83,11 +83,12 @@ EOL
 fi
 
 sleep 4
-./usr/local/bin/fantasygold-cli stop
+cd /usr/local/bin
+fantasygold-cli stop
 echo "########reindexing"
 sleep 4
 echo "########starting"
-./usr/local/bin/fantasygoldd -reindex
+fantasygoldd -reindex
 sleep 4
 
 until su -c "fantasygold-cli startmasternode local false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
