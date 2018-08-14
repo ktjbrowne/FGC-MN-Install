@@ -9,7 +9,7 @@ CHARS="/-\|"
 
 clear
 echo "
- +----------------------------------------------------script.v1.2+::
+ +----------------------------------------------------script.v1.3+::
  | FantasyGold Masternode Update Script Version: $FGCVERSION           |::
  |                                                               |::
  | This script is complemintary to the original install script.  |::
