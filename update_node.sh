@@ -84,11 +84,11 @@ fi
 
 sleep 4
 cd /usr/local/bin
-fantasygold-cli stop
+su -c "fantasygold-cli stop" $USER
 echo "########reindexing"
 sleep 4
 echo "########starting"
-fantasygoldd -reindex
+su -c "fantasygoldd -reindex" $USER 
 sleep 4
 
 until su -c "fantasygold-cli startmasternode local false 2>/dev/null | grep 'successfully started' > /dev/null" $USER; do
