@@ -6,12 +6,13 @@ COIN_SYMBOL="FGC"
 COIN_NAME="FantasyGold"
 COIN_DAEMON="fantasygoldd"
 COIN_CLI="fantasygold-cli"
-COIN_APP_URL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/1.3.0/FantasyGold-1.3.0-Linux-x64.tar.gz"
+COIN_APP_URL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/v1.2.5/FantasyGold-1.2.5-Linux-x64.tar.gz"
 COIN_CONFIG_FOLDER=".fantasygold"
 COIN_CONFIG_FILE="fantasygold.conf"
 COIN_BLOCK_COUNT_URL="http://fantasygold.network/api/getblockcount"
-DONATION_ADDRESS="HFNinoTzSh5uSbLon248RE3NqZua5dYmfS"
+DONATION_ADDRESS=""
 DEFAULT_PORT=57810
+BOOTSTRAP_URL=""
 #EXTRACT_CMD="unzip artifact -d /tmp/extract"
 EXTRACT_CMD="tar xvf artifact -C /tmp/extract"
 
@@ -69,14 +70,14 @@ isValidIp() {
 
 coinStart() {
   local OPTIONS=$1
-  su - ${USERNAME} -c "~/.local/bin/${COIN_DAEMON} --daemon ${OPTIONS}"
+  su - ${USER_NAME} -c "~/.local/bin/${COIN_DAEMON} --daemon ${OPTIONS}"
 
   i=1
-  while [[ $(lslocks | grep "/home/${USERNAME}/${COIN_CONFIG_FOLDER}/.lock" | wc -c ) -eq 0 ]]; do
+  while [[ $(lslocks | grep "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/.lock" | wc -c ) -eq 0 ]]; do
     printf "\\r${SPINNER:i++%${#SPINNER}:1} Starting ${COIN_NAME}"
     sleep 0.5
     if [ ${i} -gt 34 ]; then
-      su - "${USERNAME}" -c "~/.local/bin/${COIN_DAEMON} --daemon"
+      su - "${USER_NAME}" -c "~/.local/bin/${COIN_DAEMON} --daemon"
       break
     fi
   done
@@ -87,11 +88,11 @@ coinStart() {
 
 coinStop() {
   i=1
-  while [[ $(lslocks | grep "/home/${USERNAME}/${COIN_CONFIG_FOLDER}/.lock" | wc -c ) -ne 0 ]]; do
-    printf "\\r${SPINNER:i++%${#SPINNER}:1} Stopping ${COIN_NAME}"
+  while [[ $(lslocks | grep "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/.lock" | wc -c ) -ne 0 ]]; do
+    printf "\\r${SPINNER:i++%${#SPINNER}:1} Stopping ${COIN_NAME} (might say cannot connect to server)"
     # Use kill if daemon isn't going away see https://www.youtube.com/watch?v=Fow7iUaKrq4
     if [ ${i} -gt 20 ]; then
-      PID=$(ps -aux | grep "${USERNAME}" | grep "${COIN_DAEMON} --daemon" | grep -v "bash" | awk '{ print $2 }')
+      PID=$(ps -aux | grep "${USER_NAME}" | grep "${COIN_DAEMON} --daemon" | grep -v "bash" | awk '{ print $2 }')
       kill "${PID}"
       echo "${PID} is stuck"
       echo "force stopping it kill ${PID}"
@@ -104,11 +105,11 @@ coinStop() {
     fi
 
     # Check systemctl is being used.
-    if [ ! -f "/etc/systemd/system/${USERNAME}.service" ]
+    if [ ! -f "/etc/systemd/system/${USER_NAME}.service" ]
     then
-      TEXT=$( { /home/"${USERNAME}"/.local/bin/${COIN_CLI} -datadir=/home/"${USERNAME}"/${COIN_CONFIG_FOLDER}/ stop; } 2>&1 )
+      TEXT=$( { /home/"${USER_NAME}"/.local/bin/${COIN_CLI} -datadir=/home/"${USER_NAME}"/${COIN_CONFIG_FOLDER}/ stop; } 2>&1 )
     else
-      TEXT=$( { systemctl stop "${USERNAME}"; } 2>&1 )
+      TEXT=$( { systemctl stop "${USER_NAME}"; } 2>&1 )
     fi
 
   done
@@ -119,32 +120,46 @@ coinStop() {
 }
 
 coinBootstrap() {
-  #coinStart "-loadblock=/tmp/blk0001.dat"
-  #cp /tmp/blk0001.dat "/home/${USERNAME}/${COIN_CONFIG_FOLDER}/"
-  #coinStart
+  #cp /tmp/blk0001.dat "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/"
 
-  echo "Initializing blocks, this may take some time to complete."
+  echo "Downloading and extracting bootstrap"
+  curl -L "${BOOTSTRAP_URL}.sha256sum" -o bootstrap.tar.gz.sha256sum
+  local SHA256SUM=$(cat bootstrap.tar.gz.sha256sum | awk '{print $1}')
+  local BOOTSTRAP_SUM=$(sha256sum /root/bootstrap.tar.gz | awk '{print $1}')
+
+  if [ "${SHA256SUM}" == "${BOOTSTRAP_SUM}" ]; then
+    echo "Bootstrap found and is unchanged. Using existing bootstrap"
+  else
+    echo "Bootstrap out of date. Downloading new bootstrap"
+    curl -L "${BOOTSTRAP_URL}" -o /root/bootstrap.tar.gz
+  fi
+
+  tar xvfz /root/bootstrap.tar.gz -C /home/${USER_NAME}/${COIN_CONFIG_FOLDER}/
+  chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/${COIN_CONFIG_FOLDER}/
+
+  echo "Initializing blocks, this may take over an hour to complete."
+  coinStart
 
   # Monitor the block count synchronization and make sure everything is good
-  local EXPLORER_BLOCK_COUNT=$(curl -s "$COIN_BLOCK_COUNT_URL")
-  local LOCAL_BLOCK_COUNT=$(/home/${USERNAME}/.local/bin/${COIN_CLI} -datadir=/home/${USERNAME}/${COIN_CONFIG_FOLDER}/ getblockcount)
+  local PEER_BLOCK_COUNT=500000
+  local LOCAL_BLOCK_COUNT=$(/home/${USER_NAME}/.local/bin/${COIN_CLI} -datadir=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/ getblockcount)
   local COUNTER=0
-  while [ ${LOCAL_BLOCK_COUNT} -lt ${EXPLORER_BLOCK_COUNT} ]; do
-    local ETA=$(expr ${EXPLORER_BLOCK_COUNT} - ${LOCAL_BLOCK_COUNT})
+  while [ "0${LOCAL_BLOCK_COUNT}" -lt "0${PEER_BLOCK_COUNT}" ]; do
+    local ETA=$(expr ${PEER_BLOCK_COUNT} - ${LOCAL_BLOCK_COUNT})
     local ETA=$(expr ${ETA} / 90)
-    printf "\\r${SPINNER:COUNTER++%${#SPINNER}:1} Synchronizing blocks. Explorer Count: ${EXPLORER_BLOCK_COUNT}, Node Count: ${LOCAL_BLOCK_COUNT} (${ETA} seconds)"
+    printf "\\r${SPINNER:COUNTER++%${#SPINNER}:1} Synchronizing blocks. Explorer Count: ${PEER_BLOCK_COUNT}, Node Count: ${LOCAL_BLOCK_COUNT} (${ETA} seconds)"
     sleep 0.5
     if [ ${COUNTER} -gt 60 ]; then
       COUNTER=0
-      EXPLORER_BLOCK_COUNT=$(curl -s "$COIN_BLOCK_COUNT_URL")
+      PEER_BLOCK_COUNT=$(/home/${USER_NAME}/.local/bin/${COIN_CLI} -datadir=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/ getpeerinfo | jq '.[] | .startingheight' | sort -r | uniq | head -1)
     fi
-    LOCAL_BLOCK_COUNT=$(/home/${USERNAME}/.local/bin/${COIN_CLI} -datadir=/home/${USERNAME}/${COIN_CONFIG_FOLDER}/ getblockcount)
+    LOCAL_BLOCK_COUNT=$(/home/${USER_NAME}/.local/bin/${COIN_CLI} -datadir=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/ getblockcount)
   done
 
   printf "\\r"
   echo
 
-  #coinStop
+  coinStop
 }
 
 prettyPrint() {
@@ -152,9 +167,9 @@ prettyPrint() {
   local VALUE=$2
   local HINT=$3
   echo -n -e "\\e[1;3m${LABEL}\\e[0m:"
-  if [ $(echo -n "${LABEL}" | wc -m) -lt 8 ]; then
+  if [ $(echo -n "${LABEL}" | wc -m) -lt 7 ]; then
     echo -n -e "\t\t"
-  elif [ $(echo -n "${LABEL}" | wc -m) -lt 16 ]; then
+  elif [ $(echo -n "${LABEL}" | wc -m) -lt 15 ]; then
     echo -n -e "\t"
   fi
   echo -n -e "\t${VALUE}"
@@ -162,6 +177,10 @@ prettyPrint() {
     echo -n -e " \t\\e[2m(${HINT})\\e[0m"
   fi
   echo
+}
+
+prettySection() {
+  printf "\\n\\n\\e[42;1m***    %-40s    ***\\e[0m\\n" "$1"
 }
 
 waitOnProgram() {
@@ -175,8 +194,10 @@ waitOnProgram() {
   echo
 }
 
+prettySection "Step 1: System Validation"
+
 # Check for systemd
-systemctl --version >/dev/null 2>&1 || { echo "systemd is required. Are you using Ubuntu 16.04?" >&2; exit 1; }
+systemctl --version >/dev/null 2>&1 || { echo "systemd is required. Are you using Ubuntu 16.04 or 18.04?" >&2; exit 1; }
 
 # Check for Ubuntu
 if [ -f /etc/os-release ]; then
@@ -226,7 +247,7 @@ if [ ${FREEPSPACE} -lt 2097152 ]; then
 fi
 
 if [ ! -f /swapfile  ]; then
-  fallocate -l 1G /swapfile
+  fallocate -l 256M /swapfile
   chmod 600 /swapfile
   mkswap /swapfile
   swapon /swapfile
@@ -236,15 +257,25 @@ fi
 echo -e "\\e[0m"
 clear
 
-cat << "EOF"
-System validation completed. Installing FGC
+exec > >(tee -i install.log) 2>&1
 
-    ______            __                   ______      __    __
-   / ____/___ _____  / /_____ ________  __/ ____/___  / /___/ /
-  / /_  / __ `/ __ \/ __/ __ `/ ___/ / / / / __/ __ \/ / __  / 
- / __/ / /_/ / / / / /_/ /_/ (__  ) /_/ / /_/ / /_/ / / /_/ /  
-/_/    \__,_/_/ /_/\__/\__,_/____/\__, /\____/\____/_/\__,_/   
-                                 /____/                        
+prettySection "Step 2: ${COIN_NAME} Installation"
+
+cat << "EOF"
+System validation completed. Installing HTRC
+
+      ___           ___           ___           ___
+     /\__\         /\  \         /\  \         /\  \
+    /:/  /         \:\  \       /::\  \       /::\  \
+   /:/__/           \:\  \     /:/\:\  \     /:/\:\  \
+  /::\  \ ___       /::\  \   /::\~\:\  \   /:/  \:\  \
+ /:/\:\  /\__\     /:/\:\__\ /:/\:\ \:\__\ /:/__/ \:\__\
+ \/__\:\/:/  /    /:/  \/__/ \/_|::\/:/  / \:\  \  \/__/
+      \::/  /    /:/  /         |:|::/  /   \:\  \
+      /:/  /     \/__/          |:|\/__/     \:\  \
+     /:/  /                     |:|  |        \:\__\
+     \/__/                       \|__|         \/__/
+
 
 EOF
 
@@ -277,15 +308,15 @@ else
 fi
 
 # Set alias as the hostname.
-USERNAME="${COIN_SYMBOL,,}_mn1"
+USER_NAME="${COIN_SYMBOL,,}_mn1"
 MNALIAS="$(hostname)"
 # Auto pick a user that is blank.
 UNCOUNTER=1
 while :
 do
-  if id "${USERNAME}" >/dev/null 2>&1; then
+  if id "${USER_NAME}" >/dev/null 2>&1; then
     UNCOUNTER=$((UNCOUNTER+1))
-    USERNAME="${COIN_SYMBOL,,}_mn${UNCOUNTER}"
+    USER_NAME="${COIN_SYMBOL,,}_mn${UNCOUNTER}"
   else
     break
   fi
@@ -301,11 +332,11 @@ do
   TXHASH=''
   echo "To start with, please provide the collateral transaction id."
   echo
-  echo "In your wallet go to tools -> debug console and type in"
-  echo "     masternode outputs"
+  printf "In your wallet go to \\e[33;1m%s\\e[0m and type in\\n" "tools -> debug console"
+  printf "\\t\\e[43;1m%s\\e[0m\\n" "masternode outputs"
   echo
   echo "Paste in the transaction id for this masternode; or leave blank to skip this step."
-  read -r -e -i "${TXHASH}" -p "txhash: " input
+  read -r -p "txhash: " input
   TXHASH="${input:-$TXHASH}"
   # Trim whitespace.
 
@@ -339,11 +370,9 @@ if [[ ${TXHASH} ]]; then
 fi
 
 echo
-echo ----------------------------------------
+prettySection "Step 3: Review installation settings to be used"
 echo
-echo "Below are the default settings to be used. You may change these if desired."
-echo
-prettyPrint "Username" "${USERNAME}"
+prettyPrint "Username" "${USER_NAME}"
 # Get public and private ip addresses.
 if [ "${PUBLIC_IP}" != "${PRIVATE_IP}" ] && [ "${PRIVATE_IP}" == "0" ]; then
   PRIVATE_IP=${PUBLIC_IP}
@@ -362,7 +391,7 @@ fi
 prettyPrint "Masternode Private Key" "auto" "self generate one"
 prettyPrint "Transaction Hash" "${TXHASH}"
 prettyPrint "Output Index Number" "${OUTPUTIDX}"
-prettyPrint "Alias" "${USERNAME}_${MNALIAS}"
+prettyPrint "Alias" "${USER_NAME}_${MNALIAS}"
 echo
 
 REPLY='y'
@@ -381,13 +410,13 @@ if [[ $REPLY =~ ^[Nn] ]]; then
   # Ask for username.
   while :
   do
-    read -r -e -i "${USERNAME}" -p "Username (lowercase): " input
-    USERNAME="${input:-$USERNAME}"
+    read -r -e -i "${USER_NAME}" -p "Username (lowercase): " input
+    USER_NAME="${input:-$USER_NAME}"
     # Convert to lowercase.
-    USERNAME=$(echo "${USERNAME}" | awk '{print tolower($0)}')
+    USER_NAME=$(echo "${USER_NAME}" | awk '{print tolower($0)}')
 
-    if id "${USERNAME}" >/dev/null 2>&1; then
-      echo "User ${USERNAME} already exists."
+    if id "${USER_NAME}" >/dev/null 2>&1; then
+      echo "User ${USER_NAME} already exists."
     else
       break
     fi
@@ -466,18 +495,18 @@ echo
 read -r -t 10 -p "Hit ENTER to continue or wait 10 seconds"
 echo
 
+prettySection "Step 4: Updating System Software"
 # Update the system.
-echo "# Updating software"
-DEBIAN_FRONTEND=noninteractive apt-get install -yq libc6
+DEBIAN_FRONTEND=noninteractive apt-get install -yq libc6 software-properties-common
 DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
 #DEBIAN_FRONTEND=noninteractive apt-get upgrade -yq
 #apt-get -f install -y
-echo "# Updating system"
 DEBIAN_FRONTEND=noninteractive apt-get -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 apt-get -f install -y &
 waitOnProgram "Updating system. This may take several minutes"
 
 
+prettySection "Step 5: Installing bitcoin's libdb4.8"
 # Install bitcoin repo and get older db code from there.
 echo | add-apt-repository ppa:bitcoin/bitcoin
 apt-get update
@@ -494,9 +523,9 @@ if [ ! -f /usr/lib/x86_64-linux-gnu/libboost_system.so.1.58.0 ]; then
 fi
 
 
+prettySection "Step 6: Installing Security Software"
 # Make sure certain programs are installed.
-apt-get install screen curl htop gpw unattended-upgrades jq bc pwgen libminiupnpc10 -y
-#apt-get -f install -y
+apt-get install screen curl htop gpw unattended-upgrades jq bc pwgen libminiupnpc10 ufw lsof util-linux gzip denyhosts procps unzip
 
 if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
   # Enable auto updating of Ubuntu security packages.
@@ -507,36 +536,10 @@ APT::Periodic::Unattended-Upgrade "1";
 ' > /etc/apt/apt.conf.d/20auto-upgrades
 fi
 
-
 # Force run unattended upgrade to get everything up to date.
 echo
 unattended-upgrade &
 waitOnProgram  "Upgrading software dependencies. This may take up to 15 minutes."
-
-clear
-echo "System upgrade completed. Preparing masternode installation now"
-
-# Set new user mn1 password to a big string.
-useradd -m "${USERNAME}" -s /bin/bash
-if ! [ -x "$(command -v pwgen)" ]
-then
-  USERPASS=$(openssl rand -hex 36)
-  echo "${USERNAME}:${USERPASS}" | chpasswd
-else
-  USERPASS=$(pwgen -1 -s 44)
-  echo "${USERNAME}:${USERPASS}" | chpasswd
-fi
-
-## TODO: Grab this off of the auto-refreshed compiled results of all the admin mn owners
-ADDNODES=`printf '
-
-'`
-
-# Make sure firewall and some utilities is installed.
-apt-get install -y ufw lsof util-linux gzip denyhosts procps unzip
-
-# Good starting point is the home dir.
-cd ~/ || exit
 
 # Update system clock.
 timedatectl set-ntp off
@@ -550,20 +553,49 @@ ufw allow 123
 echo "y" | ufw enable
 ufw reload
 
+if [ ! -f "/swapfile_${USER_NAME}"  ]; then
+  fallocate -l 256M "/swapfile_${USER_NAME}"
+  chmod 600 "/swapfile_${USER_NAME}"
+  mkswap "/swapfile_${USER_NAME}"
+  swapon "/swapfile_${USER_NAME}"
+  echo "/swapfile_${USER_NAME} none swap defaults 0 0" >> /etc/fstab
+fi
+
+clear
+echo "System upgrade completed. Preparing masternode installation now"
+echo
+prettySection "Step 7: Masternode Installation"
+
+# Set new user mn1 password to a big string.
+useradd -m "${USER_NAME}" -s /bin/bash
+if ! [ -x "$(command -v pwgen)" ]
+then
+  USERPASS=$(openssl rand -hex 36)
+  echo "${USER_NAME}:${USERPASS}" | chpasswd
+else
+  USERPASS=$(pwgen -1 -s 44)
+  echo "${USER_NAME}:${USERPASS}" | chpasswd
+fi
+
+## TODO: Grab this off of the auto-refreshed compiled results of all the monitored mn owners
+ADDNODES=`printf '
+
+'`
+
+# Good starting point is the home dir.
+cd ~/ || exit
+
 # Download and extract binary
-wget ${COIN_APP_URL} -O artifact
+curl -L ${COIN_APP_URL} -o artifact
 mkdir -p /tmp/extract
 ${EXTRACT_CMD}
 
 # Copy binary to user home directory
-mkdir -p /home/${USERNAME}/.local/bin
+mkdir -p /home/${USER_NAME}/.local/bin
 find /tmp/extract -type f | xargs chmod 755
-find /tmp/extract -type f -exec mv -- "{}" /home/${USERNAME}/.local/bin \;
-find /tmp/extract -type f -exec mv -- "{}" /home/${USERNAME}/ \;
+find /tmp/extract -type f -exec mv -- "{}" /home/${USER_NAME}/.local/bin \;
 rm -rf /tmp/extract
-chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/.local
-chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}
-
+chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.local
 
 # Find open port.
 echo "Searching for an unused port"
@@ -589,8 +621,6 @@ ufw allow ${PORTB}
 echo "y" | ufw enable
 ufw reload
 
-# TODO: Download/pull down a bootstrap to reduce time needed to get masternode up and running
-
 # Generate random password.
 if ! [ -x "$(command -v pwgen)" ]; then
   PWA="$(openssl rand -hex 36)"
@@ -600,8 +630,8 @@ fi
 
 # TODO: Seed an addnodes list but first create a monitor script that auto-monitors/maintains a valid list of peer nodes
 
-su - "${USERNAME}" -c "mkdir -p /home/${USERNAME}/${COIN_CONFIG_FOLDER}/ && touch /home/${USERNAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
-printf "rpcuser=rpc_${USERNAME}
+su - "${USER_NAME}" -c "mkdir -p /home/${USER_NAME}/${COIN_CONFIG_FOLDER}/ && touch /home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
+printf "rpcuser=rpc_${USER_NAME}
 rpcpassword=${PWA}
 rpcallowip=127.0.0.1
 rpcport=${PORTA}
@@ -613,9 +643,9 @@ externalip=${PUBLIC_IP}:${PORTB}
 masternode=0
 masternodeprivkey=
 masternodeaddr=${PRIVATE_IP}:${PORTB}
-" > "/home/${USERNAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
+" > "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
 
-echo ${ADDNODES} | tr " " "\\n" >> "/home/${USERNAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
+echo ${ADDNODES} | tr " " "\\n" >> "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
 
 coinStart
 
@@ -623,7 +653,7 @@ coinStart
 
 # Generate key and stop master node.
 if [ -z "${MN_KEY}" ]; then
-  MN_KEY=$(/home/${USERNAME}/.local/bin/${COIN_CLI} -datadir=/home/${USERNAME}/${COIN_CONFIG_FOLDER}/ masternode genkey)
+  MN_KEY=$(/home/${USER_NAME}/.local/bin/${COIN_CLI} -datadir=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/ masternode genkey)
   if [ -z "${MN_KEY}" ]; then
     echo "Unable to generate KEY for masternode. Terminating script"
     exit 1
@@ -632,7 +662,7 @@ fi
 coinStop
 
 
-printf "rpcuser=rpc_${USERNAME}
+printf "rpcuser=rpc_${USER_NAME}
 rpcpassword=${PWA}
 rpcallowip=127.0.0.1
 rpcport=${PORTA}
@@ -643,82 +673,93 @@ port=${PORTB}
 externalip=${PUBLIC_IP}:${PORTB}
 masternode=1
 masternodeprivkey=${MN_KEY}
-" > "/home/${USERNAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
+" > "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
 
-echo ${ADDNODES} | tr " " "\\n" >> "/home/${USERNAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
-
-
-# TODO: Monitor block count and wait for it to be caught up. Can only do that after the boostrap TODO is handled though as this will take ages otherwise
-#coinBootstrap
+echo ${ADDNODES} | tr " " "\\n" >> "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
 
 
+prettySection "Step 8: Bootstrapping Masternode for quicker usage"
+# Monitor block count and wait for it to be caught up.
+if [ -z "$var" ]
+then
+      echo "\$BOOTSTRAP_URL is empty"
+else
+      coinBootstrap
+fi
+
+
+prettySection "Step 9: Setting up System Services"
 # Setup systemd to start masternode on restart.
 printf "[Unit]
-Description=${COIN_NAME} Masternode for user ${USERNAME}
+Description=${COIN_NAME} Masternode for user ${USER_NAME}
 After=network.target
 
 [Service]
 Type=forking
-User=${USERNAME}
-WorkingDirectory=/home/${USERNAME}
-PIDFile=/home/${USERNAME}/${COIN_CONFIG_FOLDER}/${COIN_NAME}.pid
-ExecStart=/home/${USERNAME}/.local/bin/${COIN_DAEMON} --daemon
-ExecStop=/home/${USERNAME}/.local/bin/${COIN_CLI} stop
+User=${USER_NAME}
+WorkingDirectory=/home/${USER_NAME}
+PIDFile=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_NAME}.pid
+ExecStart=/home/${USER_NAME}/.local/bin/${COIN_DAEMON} --daemon
+ExecStop=/home/${USER_NAME}/.local/bin/${COIN_CLI} stop
 Restart=always
 RestartSec=30s
 TimeoutSec=30s
 
 [Install]
-WantedBy=multi-user.target" > "/etc/systemd/system/${USERNAME}.service"
+WantedBy=multi-user.target" > "/etc/systemd/system/${USER_NAME}.service"
 
 # Run master node.
 systemctl daemon-reload
-systemctl enable "${USERNAME}"
+systemctl enable "${USER_NAME}"
 sleep 1
-systemctl start "${USERNAME}"
+systemctl start "${USER_NAME}"
 sleep 1
 
 clear
 
 # Output info.
-systemctl status --no-pager --full "${USERNAME}"
+systemctl status --no-pager --full "${USER_NAME}"
 sleep 2
 echo
 ufw status
 sleep 4
 echo
 
+prettySection "Step 10: Setup Complete. Document the below information"
 # Output more info.
-echo ========== Donation Information ==================
-echo
-echo "# Send a tip in ${COIN_NAME} to the author of this script"
-prettyPrint "${COIN_SYMBOL} Donation" "${DONATION_ADDRESS}"
-echo
+#echo ========== Donation Information ==================
+#echo
+#echo "# Send a tip in ${COIN_NAME} to the author of this script"
+#prettyPrint "${COIN_SYMBOL} Donation" "${DONATION_ADDRESS}"
+#echo
 echo ========== Useful Root Commands ==================
 echo
-prettyPrint "Daemon Status" "systemctl status --no-pager --full ${USERNAME}"
-prettyPrint " Daemon Start" "systemctl start ${USERNAME}"
-prettyPrint "  Daemon Stop" "systemctl stop ${USERNAME}"
-prettyPrint "    MN Status" "su - ${USERNAME} -c '${COIN_CLI} masternode status'"
-prettyPrint "  Block Count" "su - ${USERNAME} -c '${COIN_CLI} getblockcount'"
+prettyPrint "Daemon Status" "systemctl status --no-pager --full ${USER_NAME}"
+prettyPrint " Daemon Start" "systemctl start ${USER_NAME}"
+prettyPrint "  Daemon Stop" "systemctl stop ${USER_NAME}"
+prettyPrint "    MN Status" "su - ${USER_NAME} -c '${COIN_CLI} masternode status'"
+prettyPrint "  Block Count" "su - ${USER_NAME} -c '${COIN_CLI} getblockcount'"
 echo
 
 # Print IP and PORT.
 echo ========== Access and Credentials ================
 echo
-prettyPrint "SSH Info" "ssh ${USERNAME}@${PUBLIC_IP}"
-prettyPrint "Username" "${USERNAME}"
+echo Masternode is installed under user ${USER_NAME}, you must ssh into the system using credentials below
+echo
+prettyPrint "SSH Info" "ssh ${USER_NAME}@${PUBLIC_IP}"
+prettyPrint "Username" "${USER_NAME}"
 prettyPrint "Password" "${USERPASS}"
 echo
-echo "    Useful commands to know"
+echo "Useful commands to know"
 prettyPrint "     Get Info" "${COIN_CLI} getinfo"
 prettyPrint "    MN Status" "${COIN_CLI} masternode status"
 prettyPrint "  Block Count" "${COIN_CLI} getblockcount"
-prettyPrint "Make AddNodes" "BLKCOUNT=\$(${COIN_CLI} getblockcount) && BLKCOUNTL=\$((BLKCOUNT-1)) && BLKCOUNTH=\$((BLKCOUNT+1)) && ${COIN_CLI} getpeerinfo | jq '.[] | select (.banscore < 10 ) | .addr ' | sed 's/\\\"//g' | sed 's/\:11368//g' | awk '{print \"addnode=\"\$1}'"
 echo
 echo ========== Masternode Information ================
 echo
-prettyPrint "           Alias" "${USERNAME}_${MNALIAS}"
+/home/${USER_NAME}/.local/bin/${COIN_CLI} -datadir=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/ masternode status
+echo
+prettyPrint "           Alias" "${USER_NAME}_${MNALIAS}"
 prettyPrint "            Host" "${PUBLIC_IP}:${PORTB}"
 prettyPrint "     Private Key" "${MN_KEY}"
 if [ ! -z "${TXHASH}" ]
@@ -726,15 +767,11 @@ then
   prettyPrint " Collateral txid" "${TXHASH}"
   prettyPrint "Collateral index" "${OUTPUTIDX}"
   echo
-  prettyPrint " masternode.conf" "${USERNAME}_${MNALIAS} ${PUBLIC_IP}:${PORTB} ${MN_KEY} ${TXHASH} ${OUTPUTIDX}"
+  printf "\\e[33;1m%s\\e[0m\\n\\t%s" "Add to the masternode.conf configuration" "${USER_NAME}_${MNALIAS} ${PUBLIC_IP}:${PORTB} ${MN_KEY} ${TXHASH} ${OUTPUTIDX}"
 else
   echo
-  echo Append the txhash and outputidx onto the masternode.conf configuration below
-  prettyPrint " masternode.conf" "${USERNAME}_${MNALIAS} ${PUBLIC_IP}:${PORTB} ${MN_KEY} ${TXHASH} ${OUTPUTIDX}"
+  printf "\\e[33;1m%s\\e[0m\\n\\t%s" "Append the txhash and outputidx onto the masternode.conf configuration below" "${USER_NAME}_${MNALIAS} ${PUBLIC_IP}:${PORTB} ${MN_KEY} ${TXHASH} ${OUTPUTIDX}"
 fi
 
 echo
-coinBootstrap
-echo
-/home/${USERNAME}/.local/bin/${COIN_CLI} -datadir=/home/${USERNAME}/${COIN_CONFIG_FOLDER}/ masternode status
 echo "Masternode is fully up to date now. Make sure the above information has been captured for your reference"
