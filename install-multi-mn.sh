@@ -736,6 +736,24 @@ ufw status
 sleep 4
 echo
 
+
+until su -c "home/${USER_NAME}/.local/bin/${COIN_CLI} getblockcount | grep curl https://fantasygold.network/api/getblockcount" $USER; do
+  for (( i=0; i<${#CHARS}; i++ )); do
+    sleep 5
+    #echo -en "${CHARS:$i:1}" "\r"
+    clear
+    echo "Service Started. Your masternode is syncing. 
+    When Current = Synced then select your MN in the local wallet and start it. 
+    Script should auto finish here."
+    echo "
+    Current Block: "
+    su -c "curl https://fantasygold.network/api/getblockcount" $USER
+    echo "
+    Synced Blocks: "
+    su -c "fantasygold-cli getblockcount" $USER
+  done
+done
+
 prettySection "Step 10: Setup Complete. Document the below information"
 # Output more info.
 #echo ========== Donation Information ==================
