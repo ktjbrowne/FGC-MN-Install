@@ -525,7 +525,7 @@ apt-get install -y libdb4.8-dev libdb4.8++-dev
 if [ ! -f /usr/lib/x86_64-linux-gnu/libboost_system.so.1.58.0 ]; then
   # Add in 16.04 repo.
   echo "deb http://archive.ubuntu.com/ubuntu/ xenial-updates main restricted" >> /etc/apt/sources.list
-  apt-get update
+  apt-get update -y
 
   # Install old boost files.
   apt-get install -y libboost-system1.58.0 libboost-filesystem1.58.0 libboost-program-options1.58.0 libboost-thread1.58.0
@@ -534,7 +534,7 @@ fi
 
 prettySection "Step 6: Installing Security Software"
 # Make sure certain programs are installed.
-apt-get install screen curl htop gpw unattended-upgrades jq bc pwgen libminiupnpc10 ufw lsof util-linux gzip denyhosts procps unzip
+apt-get install -y screen curl htop gpw unattended-upgrades jq bc pwgen libminiupnpc10 ufw lsof util-linux gzip denyhosts procps unzip
 
 if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
   # Enable auto updating of Ubuntu security packages.
@@ -598,13 +598,9 @@ cd ~/ || exit
 prettySection "Step A: **** downloading"
 sleep 5
 # Download and extract binary
-if [ ! -f ./FantasyGold-1.2.5-Linux-x64.tar.gz ]; then
-  curl -L ${COIN_APP_URL}
-  mkdir -p /tmp/extract
-  ${EXTRACT_CMD}
-else
-  ${EXTRACT_CMD}
-fi
+curl -L ${COIN_APP_URL} -o artifact
+mkdir -p /tmp/extract
+${EXTRACT_CMD}
 
 
 # Copy binary to user home directory
