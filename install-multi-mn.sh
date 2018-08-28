@@ -596,8 +596,9 @@ ADDNODES=`printf '
 cd ~/ || exit
 
 prettySection "Step A: **** downloading"
+sleep 5
 # Download and extract binary
-if [ ! -f FantasyGold-1.2.5-Linux-x64.tar.gz ]; then
+if [ ! -f ./FantasyGold-1.2.5-Linux-x64.tar.gz ]; then
   curl -L ${COIN_APP_URL}
   mkdir -p /tmp/extract
   ${EXTRACT_CMD}
@@ -608,6 +609,7 @@ fi
 
 # Copy binary to user home directory
 prettySection "Step A: **** installing"
+sleep 5
 mkdir -p /home/${USER_NAME}/.local/bin
 find /tmp/extract -type f | xargs chmod 755
 find /tmp/extract -type f -exec mv -- "{}" /home/${USER_NAME}/.local/bin \;
@@ -615,6 +617,7 @@ rm -rf /tmp/extract
 chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.local
 
 prettySection "Step B: **** finding port"
+sleep 5
 # Find open port.
 echo "Searching for an unused port"
 read -r LOWERPORT UPPERPORT < /proc/sys/net/ipv4/ip_local_port_range
@@ -665,10 +668,14 @@ masternodeaddr=${PRIVATE_IP}:${PORTB}
 
 echo ${ADDNODES} | tr " " "\\n" >> "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
 
+prettySection "Step C: **** generating Key"
+sleep 5
 coinStart
 
 # TODO: Monitor connection count and wait for it to be 6 or more. Can only do that after the addnodes TODO is handled though as this can take ages otherwise
 
+prettySection "Step D: **** generating Key"
+sleep 5 
 # Generate key and stop master node.
 if [ -z "${MN_KEY}" ]; then
   MN_KEY=$(/home/${USER_NAME}/.local/bin/${COIN_CLI} -datadir=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/ masternode genkey)
@@ -677,8 +684,11 @@ if [ -z "${MN_KEY}" ]; then
     exit 1
   fi
 fi
+prettySection "Step E: **** stopping daemon"
 coinStop
+sleep 5
 
+prettySection "Step F: **** finalising configs"
 
 printf "rpcuser=rpc_${USER_NAME}
 rpcpassword=${PWA}
@@ -695,7 +705,7 @@ masternodeprivkey=${MN_KEY}
 
 echo ${ADDNODES} | tr " " "\\n" >> "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
 
-
+sleep 5
 prettySection "Step 8: Bootstrapping Masternode for quicker usage"
 # Monitor block count and wait for it to be caught up.
 if [ -z "$var" ]
@@ -727,14 +737,15 @@ TimeoutSec=30s
 WantedBy=multi-user.target" > "/etc/systemd/system/${USER_NAME}.service"
 
 # Run master node.
-prettySection "Step C: **** starting node"
+prettySection "Step G: **** starting node"
+sleep 5
 systemctl daemon-reload
 systemctl enable "${USER_NAME}"
 sleep 1
 systemctl start "${USER_NAME}"
 sleep 1
 
-clear
+#clear
 
 # Output info.
 systemctl status --no-pager --full "${USER_NAME}"
