@@ -109,7 +109,7 @@ coinStop() {
     printf "\\r${SPINNER:i++%${#SPINNER}:1} Stopping ${COIN_NAME} (might say cannot connect to server)"
     # Use kill if daemon isn't going away see https://www.youtube.com/watch?v=Fow7iUaKrq4
     if [ ${i} -gt 20 ]; then
-      PID=$(ps -aux | grep "${USER_NAME}" | grep "${COIN_DAEMON} | grep -v "bash" | awk '{ print $2 }')
+      PID=$(ps -aux | grep "${USER_NAME}" | grep "${COIN_DAEMON}" | grep -v "bash" | awk '{ print $2 }')
       kill "${PID}"
       echo "${PID} is stuck"
       echo "force stopping it kill ${PID}"
