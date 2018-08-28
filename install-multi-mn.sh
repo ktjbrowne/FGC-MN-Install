@@ -543,7 +543,6 @@ APT::Periodic::Download-Upgradeable-Packages "1";
 APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::Unattended-Upgrade "1";
 APT::Get::Assume-Yes "true";
-APT::Get::force-yes "true";
 ' > /etc/apt/apt.conf.d/20auto-upgrades
 fi
 
