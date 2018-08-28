@@ -737,7 +737,7 @@ sleep 4
 echo
 
 
-until su -c "home/${USER_NAME}/.local/bin/${COIN_CLI} getblockcount | grep curl https://fantasygold.network/api/getblockcount" $USER; do
+until su -c "home/${USER_NAME}/.local/bin/${COIN_CLI} getblockcount /dev/null | grep curl https://fantasygold.network/api/getblockcount /dev/null" $USER; do
   for (( i=0; i<${#CHARS}; i++ )); do
     sleep 5
     #echo -en "${CHARS:$i:1}" "\r"
