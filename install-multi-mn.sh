@@ -7,6 +7,7 @@ COIN_NAME="FantasyGold"
 COIN_DAEMON="fantasygoldd"
 COIN_CLI="fantasygold-cli"
 COIN_APP_URL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/v1.2.5/FantasyGold-1.2.5-Linux-x64.tar.gz"
+COIN_FILE="FantasyGold-1.2.5-Linux-x64.tar.gz"
 COIN_CONFIG_FOLDER=".fantasygold"
 COIN_CONFIG_FILE="fantasygold.conf"
 COIN_BLOCK_COUNT_URL="http://fantasygold.network/api/getblockcount"
@@ -541,6 +542,8 @@ if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
 APT::Periodic::Download-Upgradeable-Packages "1";
 APT::Periodic::Update-Package-Lists "1";
 APT::Periodic::Unattended-Upgrade "1";
+APT::Get::Assume-Yes "true";
+APT::Get::force-yes "true";
 ' > /etc/apt/apt.conf.d/20auto-upgrades
 fi
 
@@ -595,9 +598,14 @@ cd ~/ || exit
 
 prettySection "Step A: **** downloading"
 # Download and extract binary
-curl -L ${COIN_APP_URL} -o artifact
-mkdir -p /tmp/extract
-${EXTRACT_CMD}
+if [ ! -f FantasyGold-1.2.5-Linux-x64.tar.gz ]; then
+  curl -L ${COIN_APP_URL}
+  mkdir -p /tmp/extract
+  ${EXTRACT_CMD}
+else
+  ${EXTRACT_CMD}
+fi
+
 
 # Copy binary to user home directory
 prettySection "Step A: **** installing"
