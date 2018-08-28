@@ -212,6 +212,7 @@ waitOnProgram() {
 }
 
 prettySection "Step 1: System Validation"
+sleep 4
 
 # Check for systemd
 systemctl --version >/dev/null 2>&1 || { echo "systemd is required. Are you using Ubuntu 16.04 or 18.04?" >&2; exit 1; }
@@ -279,7 +280,7 @@ exec > >(tee -i install.log) 2>&1
 prettySection "Step 2: ${COIN_NAME} Installation"
 
 cat << "EOF"
-System validation completed. Installing ${COIN_NAME}
+System validation completed. Installing "${COIN_NAME}"
 
 
 
