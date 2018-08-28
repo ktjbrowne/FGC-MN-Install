@@ -68,7 +68,7 @@ isValidIp() {
   return $stat # as expected returning
 }
 
-coinStart() {
+coinStartOLD() {
   local OPTIONS=$1
   su - ${USER_NAME} -c "~/.local/bin/${COIN_DAEMON} --daemon ${OPTIONS}"
 
@@ -85,6 +85,23 @@ coinStart() {
   # Give it a few seconds once starting to make sure it is ready to run
   sleep 3
 }
+coinStart() {
+  local OPTIONS=$1
+  su - ${USER_NAME} -c "~/.local/bin/${COIN_DAEMON} ${OPTIONS}"
+
+  i=1
+  while [[ $(lslocks | grep "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/.lock" | wc -c ) -eq 0 ]]; do
+    printf "\\r${SPINNER:i++%${#SPINNER}:1} Starting ${COIN_NAME}"
+    sleep 0.5
+    if [ ${i} -gt 34 ]; then
+      su - "${USER_NAME}" -c "~/.local/bin/${COIN_DAEMON} "
+      break
+    fi
+  done
+
+  # Give it a few seconds once starting to make sure it is ready to run
+  sleep 3
+}
 
 coinStop() {
   i=1
@@ -92,7 +109,7 @@ coinStop() {
     printf "\\r${SPINNER:i++%${#SPINNER}:1} Stopping ${COIN_NAME} (might say cannot connect to server)"
     # Use kill if daemon isn't going away see https://www.youtube.com/watch?v=Fow7iUaKrq4
     if [ ${i} -gt 20 ]; then
-      PID=$(ps -aux | grep "${USER_NAME}" | grep "${COIN_DAEMON} --daemon" | grep -v "bash" | awk '{ print $2 }')
+      PID=$(ps -aux | grep "${USER_NAME}" | grep "${COIN_DAEMON} | grep -v "bash" | awk '{ print $2 }')
       kill "${PID}"
       echo "${PID} is stuck"
       echo "force stopping it kill ${PID}"
@@ -262,19 +279,9 @@ exec > >(tee -i install.log) 2>&1
 prettySection "Step 2: ${COIN_NAME} Installation"
 
 cat << "EOF"
-System validation completed. Installing HTRC
+System validation completed. Installing ${COIN_NAME}
 
-      ___           ___           ___           ___
-     /\__\         /\  \         /\  \         /\  \
-    /:/  /         \:\  \       /::\  \       /::\  \
-   /:/__/           \:\  \     /:/\:\  \     /:/\:\  \
-  /::\  \ ___       /::\  \   /::\~\:\  \   /:/  \:\  \
- /:/\:\  /\__\     /:/\:\__\ /:/\:\ \:\__\ /:/__/ \:\__\
- \/__\:\/:/  /    /:/  \/__/ \/_|::\/:/  / \:\  \  \/__/
-      \::/  /    /:/  /         |:|::/  /   \:\  \
-      /:/  /     \/__/          |:|\/__/     \:\  \
-     /:/  /                     |:|  |        \:\__\
-     \/__/                       \|__|         \/__/
+
 
 
 EOF
@@ -585,18 +592,21 @@ ADDNODES=`printf '
 # Good starting point is the home dir.
 cd ~/ || exit
 
+prettySection "Step A: **** downloading"
 # Download and extract binary
 curl -L ${COIN_APP_URL} -o artifact
 mkdir -p /tmp/extract
 ${EXTRACT_CMD}
 
 # Copy binary to user home directory
+prettySection "Step A: **** installing"
 mkdir -p /home/${USER_NAME}/.local/bin
 find /tmp/extract -type f | xargs chmod 755
 find /tmp/extract -type f -exec mv -- "{}" /home/${USER_NAME}/.local/bin \;
 rm -rf /tmp/extract
 chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.local
 
+prettySection "Step B: **** finding port"
 # Find open port.
 echo "Searching for an unused port"
 read -r LOWERPORT UPPERPORT < /proc/sys/net/ipv4/ip_local_port_range
@@ -709,6 +719,7 @@ TimeoutSec=30s
 WantedBy=multi-user.target" > "/etc/systemd/system/${USER_NAME}.service"
 
 # Run master node.
+prettySection "Step C: **** starting node"
 systemctl daemon-reload
 systemctl enable "${USER_NAME}"
 sleep 1
