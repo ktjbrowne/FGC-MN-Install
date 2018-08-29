@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Run this file
-#bash <( curl https://raw.githubusercontent.com/FantasyGold/FGC-MN-Install/master/install-multi-mn.sh )
+#bash <( curl https://raw.githubusercontent.com/ktjbrowne/FGC-MN-Install/master/install-multi-mn.sh )
 
 COIN_SYMBOL="FGC"
 COIN_NAME="FantasyGold"
@@ -723,7 +723,7 @@ Type=forking
 User=${USER_NAME}
 WorkingDirectory=/home/${USER_NAME}
 PIDFile=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_NAME}.pid
-ExecStart=/home/${USER_NAME}/.local/bin/${COIN_DAEMON} --daemon
+ExecStart=/home/${USER_NAME}/.local/bin/${COIN_DAEMON}
 ExecStop=/home/${USER_NAME}/.local/bin/${COIN_CLI} stop
 Restart=always
 RestartSec=30s
