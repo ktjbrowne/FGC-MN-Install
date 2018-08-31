@@ -45,7 +45,8 @@ doChecks
 
 ## show script Details
 doWelcome(){
-
+prettySection "...Welcome to the FGC Multi MN Installer for v_1.2.5"
+read -e -p "Enter your Private Key (genkey)" MN_KEY
 }
 
 ## system Check
@@ -139,8 +140,6 @@ sleep 4
 setInputs(){
 prettySection "...SET VARIABLES...START"
 PUBLIC_IP="$(wget -qO- -o- ipinfo.io/ip)"
-## Alternative Public IP determination in case the above fails to work for some reason
-# PUBLIC_IP=`dig +short myip.opendns.com @resolver1.opendns.com`
 
 PRIVATE_IP="$(ip route get 8.8.8.8 | sed 's/ uid .*//' | awk '{print $NF; exit}')"
 MN_KEY=''
@@ -182,6 +181,34 @@ done
 
 prettySection "...GET VARIABLES...END"
 sleep 3
+}
+
+doReview(){
+prettySection "...REVIEW INPUTS...start"
+
+echo
+prettyPrint "Username" "${USER_NAME}"
+# Get public and private ip addresses.
+if [ "${PUBLIC_IP}" != "${PRIVATE_IP}" ] && [ "${PRIVATE_IP}" == "0" ]; then
+  PRIVATE_IP=${PUBLIC_IP}
+fi
+if [ "${PUBLIC_IP}" != "${PRIVATE_IP}" ]; then
+  prettyPrint "Public Address" "${PUBLIC_IP}"
+  prettyPrint "Private Address" "${PRIVATE_IP}"
+else
+  prettyPrint "Public Address" "${PUBLIC_IP}"
+fi
+if [ -z "${PORTB}" ]; then
+  prettyPrint "Port" "auto" "find available port"
+else
+  prettyPrint "Port" "${PORTB}"
+fi
+prettyPrint "Masternode Private Key" "auto" "self generate one"
+prettyPrint "Transaction Hash" "${TXHASH}"
+prettyPrint "Output Index Number" "${OUTPUTIDX}"
+prettyPrint "Alias" "${USER_NAME}_${MNALIAS}"
+echo
+
 }
 
 ## install dependencies
