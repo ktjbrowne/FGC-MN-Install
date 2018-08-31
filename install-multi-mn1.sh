@@ -241,7 +241,7 @@ prettySection "...2- INSTALLING DEPENDENCIES...END"
 
 ## Get Port and do ufw
 doPorts() {
-
+return 0
 }
 
 ## download binaries
