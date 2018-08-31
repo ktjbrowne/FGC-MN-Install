@@ -2,6 +2,7 @@
 # Run this file
 #bash <( curl https://raw.githubusercontent.com/ktjbrowne/FGC-MN-Install/master/install-multi-mn.sh )
 
+#test
 COIN_SYMBOL="FGC"
 COIN_NAME="FantasyGold"
 COIN_DAEMON="fantasygoldd"
@@ -671,7 +672,7 @@ coinStart
 # TODO: Monitor connection count and wait for it to be 6 or more. Can only do that after the addnodes TODO is handled though as this can take ages otherwise
 
 prettySection "Step D: **** generating Key"
-sleep 5 
+sleep 5
 # Generate key and stop master node.
 if [ -z "${MN_KEY}" ]; then
   MN_KEY=$(/home/${USER_NAME}/.local/bin/${COIN_CLI} -datadir=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/ masternode genkey)
@@ -757,8 +758,8 @@ until su -c "home/${USER_NAME}/.local/bin/${COIN_CLI} getblockcount /dev/null | 
     sleep 5
     #echo -en "${CHARS:$i:1}" "\r"
     clear
-    echo "Service Started. Your masternode is syncing. 
-    When Current = Synced then select your MN in the local wallet and start it. 
+    echo "Service Started. Your masternode is syncing.
+    When Current = Synced then select your MN in the local wallet and start it.
     Script should auto finish here."
     echo "
     Current Block: "
