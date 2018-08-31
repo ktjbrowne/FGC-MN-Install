@@ -240,37 +240,37 @@ prettySection "...2- INSTALLING DEPENDENCIES...END"
 }
 
 ## Get Port and do ufw
-doPorts(){
+doPorts() {
 
 }
 
 ## download binaries
-doDownload(){
+doDownload() {
 
 }
 
 ## make config file
-doConfigs(){
+doConfigs() {
 
 }
 
 ## get BootStrap
-getBootStrap(){
+getBootStrap() {
 
 }
 
 ## Enable & Start
-startCoin(){
+startCoin() {
 
 }
 
 ## check and show sync
-checkSync(){
+checkSync() {
 
 }
 
 ## check MN status
-checkStatus(){
+checkStatus() {
 
 }
 
@@ -349,7 +349,7 @@ waitOnProgram() {
 
 
 #################################################################
-## Main Program Run 
+## Main Program Run
 echo "starting...."
 doWelcome
 doChecks
