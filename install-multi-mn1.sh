@@ -1,4 +1,4 @@
-bash <( curl https://raw.githubusercontent.com/ktjbrowne/FGC-MN-Install/master/install-multi-mn1.sh )
+#bash <( curl https://raw.githubusercontent.com/ktjbrowne/FGC-MN-Install/master/install-multi-mn1.sh )
 
 ## Set Coin Details
 COIN_SYMBOL="FGC"
