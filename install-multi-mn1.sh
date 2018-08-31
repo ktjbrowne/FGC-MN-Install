@@ -1,3 +1,4 @@
+bash <( curl https://raw.githubusercontent.com/ktjbrowne/FGC-MN-Install/master/install-multi-mn1.sh )
 
 ## Set Coin Details
 COIN_SYMBOL="FGC"
@@ -32,16 +33,6 @@ UNCOUNTER=1
 MN_KEY=''
 TXHASH=''
 OUTPUTIDX=''
-
-
-#################################################################
-## Main Program Run
-
-doWelcome
-doChecks
-doDependencies
-setInputs
-doReview
 
 
 ##################################################################
@@ -353,3 +344,15 @@ waitOnProgram() {
   done
   echo
 }
+
+
+
+
+#################################################################
+## Main Program Run
+
+doWelcome
+doChecks
+doDependencies
+setInputs
+doReview
