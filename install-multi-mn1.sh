@@ -37,7 +37,11 @@ OUTPUTIDX=''
 #################################################################
 ## Main Program Run
 
+doWelcome
 doChecks
+doDependencies
+setInputs
+doReview
 
 
 ##################################################################
