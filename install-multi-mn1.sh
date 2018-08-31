@@ -350,7 +350,7 @@ waitOnProgram() {
 
 #################################################################
 ## Main Program Run
-
+echo "starting...."
 doWelcome
 doChecks
 doDependencies
