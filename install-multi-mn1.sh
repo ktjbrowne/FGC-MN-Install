@@ -246,32 +246,32 @@ return 0
 
 ## download binaries
 doDownload() {
-
+return 0
 }
 
 ## make config file
 doConfigs() {
-
+return 0
 }
 
 ## get BootStrap
 getBootStrap() {
-
+return 0
 }
 
 ## Enable & Start
 startCoin() {
-
+return 0
 }
 
 ## check and show sync
 checkSync() {
-
+return 0
 }
 
 ## check MN status
 checkStatus() {
-
+return 0
 }
 
 ##############################################
