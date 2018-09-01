@@ -423,7 +423,7 @@ prettyPrint() {
   echo -n -e "\\e[96;40m${LABEL}\\e[0m:"
   if [ $(echo -n "${LABEL}" | wc -m) -lt 7 ]; then
     echo -n -e "\t\t"
-  elif [ $(echo -n "${LABEL}" | wc -m) -lt 15 ]; then
+  elif [ $(echo -n "${LABEL}" | wc -m) -lt 15 ]; then 
     echo -n -e "\t"
   fi
   echo -n -e "\t${VALUE}"
