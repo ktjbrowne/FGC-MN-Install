@@ -42,17 +42,8 @@ OUTPUTIDX=''
 #
 # show script Details
 doWelcome(){
-  echo -e "\e[43;30;1m Yes it is awful \e[0m"
-  echo -e "\e[43;30m Yes it is awful \e[0m"
-  echo -e "\e[30;43m NO BOLD \e[0m"
-  echo -e "\e[30;43;1m BOLD \e[0m"
-  echo -e "\033[1m;30;43 Yes it is awful \e[0m"
-
-
-echo -e "\033[1mFund name\033[0m: Mutual"
-echo -e "NAV is: \033[1m1234\033[0m"
-  #prettySection "Welcome to the FGC Multi MN Installer for v_1.2.5"
-  #read -e -p "Enter your Private Key (genkey):  " MN_KEY
+  prettySection "Welcome to the FGC Multi MN Installer for v_1.2.5"
+  read -e -p "Enter your Private Key (genkey):  " MN_KEY
 }
 
 
@@ -363,9 +354,7 @@ prettyPrint() {
 }
 
 prettySection() {
-  echo "1"
-  #printf "\\n\\n\\e[43;1m***    %-30s    ***\\e[0m\\n" "$1"
-  printf "\\n\\n\\e[43;1m***    \\e[30;%    ***\\e[0m\\n" "$1"
+  printf "\\n\\n\\e[43;30***    %-30s    ***\\e[0m\\n" "$1"
 }
 
 waitOnProgram() {
@@ -385,9 +374,9 @@ waitOnProgram() {
 ################################################################################
 ## Main Program Run
 doWelcome
-#doSystemValidation
-#doSystemVars
-#doReview
+doSystemValidation
+doSystemVars
+doReview
 
 #doDependencies
 #setInputs
