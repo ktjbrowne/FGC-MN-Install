@@ -296,7 +296,7 @@ fi
 echo
 unattended-upgrade &
 waitOnProgram  "upgrading software"
-sleep 0.5
+#sleep 0.5
 
 # Update system clock.
 timedatectl set-ntp off
@@ -442,8 +442,8 @@ printHead1() {
 }
 
 printHead2() {
-  printf "\\e[96;40m   %-30s *\\e[0m\\n" "$1"
-} 
+  printf "\\e[96;40m -%-30s *\\e[0m\\n" "$1"
+}
 
 
 waitOnProgram() {
@@ -451,7 +451,7 @@ waitOnProgram() {
   local PID=$!
   local i=1
   while [ -d /proc/$PID ]; do
-    echo "\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}"
+    printf "\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}"
     sleep 0.3
   done
   echo
