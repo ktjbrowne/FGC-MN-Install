@@ -255,6 +255,9 @@ DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -
 #DEBIAN_FRONTEND=noninteractive apt-get upgrade -yq
 #apt-get -f install -y
 DEBIAN_FRONTEND=noninteractive apt-get -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
+
+sleep 0.5
+
 apt-get -f install -y &
 waitOnProgram "Updating system. This may take several minutes"
 
@@ -451,7 +454,7 @@ waitOnProgram() {
   local PID=$!
   local i=1
   while [ -d /proc/$PID ]; do
-    printf "\\e[96;40m\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}"
+    printf "\\e[96;40m\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}\\e[0m\\n"
     sleep 0.3
   done
   echo
