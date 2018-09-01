@@ -148,7 +148,7 @@ doSystemValidation(){
     mkswap /swapfile
     swapon /swapfile
     #echo "/swapfile none swap defaults 0 0" >> /etc/fstab
-  else echo "swap exists for root"
+  else printHead1 "swap exists for root"
   fi
 
 }
