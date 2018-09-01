@@ -228,8 +228,8 @@ else
   prettyPrint "Port" "${PORTB}"
 fi
 prettyPrint "Masternode Private Key" "${MN_KEY}"
-prettyPrint "Transaction Hash" "${TXHASH}"
-prettyPrint "Output Index Number" "${OUTPUTIDX}"
+#prettyPrint "Transaction Hash" "${TXHASH}"
+#prettyPrint "Output Index Number" "${OUTPUTIDX}"
 prettyPrint "Alias" "${USER_NAME}_${MNALIAS}"
 echo
 }
@@ -240,6 +240,75 @@ return 0
 
 ## install dependencies
 doSystemPackages(){
+prettySection "INSTALLING DEPENDENCIES"
+sleep 3
+echo "updating system"
+# Update the system.
+DEBIAN_FRONTEND=noninteractive apt-get install -yq libc6 software-properties-common
+DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
+#DEBIAN_FRONTEND=noninteractive apt-get upgrade -yq
+#apt-get -f install -y
+DEBIAN_FRONTEND=noninteractive apt-get -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
+apt-get -f install -y &
+waitOnProgram "Updating system. This may take several minutes"
+
+echo "installing bitcoin"
+echo | add-apt-repository ppa:bitcoin/bitcoin
+apt-get update
+apt-get install -y libdb4.8-dev libdb4.8++-dev
+
+# Add in older boost files if needed.
+echo "intalling boost"
+if [ ! -f /usr/lib/x86_64-linux-gnu/libboost_system.so.1.58.0 ]; then
+  # Add in 16.04 repo.
+  echo "deb http://archive.ubuntu.com/ubuntu/ xenial-updates main restricted" >> /etc/apt/sources.list
+  apt-get update -y
+
+  # Install old boost files.
+  apt-get install -y libboost-system1.58.0 libboost-filesystem1.58.0 libboost-program-options1.58.0 libboost-thread1.58.0
+fi
+
+echo "installing apps"
+# Make sure certain programs are installed.
+apt-get install -y screen curl htop gpw unattended-upgrades jq bc pwgen libminiupnpc10 ufw lsof util-linux gzip denyhosts procps unzip
+
+echo "setting auto update"
+if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
+  # Enable auto updating of Ubuntu security packages.
+  printf 'APT::Periodic::Enable "1";
+APT::Periodic::Download-Upgradeable-Packages "1";
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Get::Assume-Yes "true";
+' > /etc/apt/apt.conf.d/20auto-upgrades
+fi
+
+echo
+unattended-upgrade &
+waitOnProgram  "upgrading software"
+
+# Update system clock.
+timedatectl set-ntp off
+timedatectl set-ntp on
+# Increase open files limit.
+ulimit -n 4096
+
+echo "checking user swap file"
+if [ ! -f "/swapfile_${USER_NAME}"  ]; then
+  echo "no user swap file, creating"
+  fallocate -l 256M "/swapfile_${USER_NAME}"
+  chmod 600 "/swapfile_${USER_NAME}"
+  mkswap "/swapfile_${USER_NAME}"
+  swapon "/swapfile_${USER_NAME}"
+  echo "/swapfile_${USER_NAME} none swap defaults 0 0" >> /etc/fstab
+else echo "user swap file already exists"
+fi
+
+}
+
+
+## install dependencies
+doSystemPackages_(){
 prettySection "INSTALLING DEPENDENCIES"
 sleep 3
 
@@ -257,7 +326,6 @@ service fail2ban restart
 
 apt-get -qq install ufw
 echo "...install packages...end"
-
 
 }
 
@@ -355,8 +423,6 @@ prettyPrint() {
 
 prettySection() {
   printf "\\n\\n\\e[43;30m***    %-30s    ***\\e[0m\\n" "$1"
-  #printf "\\n\\n\\e[43;30m***    %    ***\\e[0m\\n" "$1"
-  #printf "\\n\\n\\e[43;30;1m***    %    ***\\e[0m\\n" "$1"
 }
 
 waitOnProgram() {
@@ -379,8 +445,7 @@ doWelcome
 doSystemValidation
 doSystemVars
 doReview
-
-#doDependencies
+doDependencies
 #setInputs
 #doReview
 
