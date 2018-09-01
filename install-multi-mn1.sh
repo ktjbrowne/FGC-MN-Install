@@ -467,7 +467,7 @@ waitOnProgram() {
 #doSystemVars
 #doReview
 #doSystemPackages
-waitOnProgram "testeststsetsetset"
+waitOnProgram  "testeststsetsetset"
 #setInputs
 #doReview
 
