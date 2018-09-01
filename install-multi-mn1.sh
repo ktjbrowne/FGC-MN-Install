@@ -230,6 +230,7 @@ printHead0 "REVIEW INPUTS"
 sleep 1
 echo
 prettyPrint "Username" "${USER_NAME}"
+prettyPrint "UserPass" "${USERPASS}"
 # Get public and private ip addresses.
 if [ "${PUBLIC_IP}" != "${PRIVATE_IP}" ] && [ "${PRIVATE_IP}" == "0" ]; then
   PRIVATE_IP=${PUBLIC_IP}
@@ -250,7 +251,7 @@ prettyPrint "Masternode Private Key" "${MN_KEY}"
 #prettyPrint "Transaction Hash" "${TXHASH}"
 #prettyPrint "Output Index Number" "${OUTPUTIDX}"
 prettyPrint "Alias" "${USER_NAME}_${MNALIAS}"
-prettyPrint "UserPass" "${USERPASS}"
+
 echo
 }
 
@@ -462,7 +463,7 @@ waitOnProgram() {
   local i=1
   while [ -d /proc/$PID ]; do
     printf "\\e[96;40m\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}\\e[0m\\n"
-    sleep 0.3
+    #sleep 0.3
   done
   echo
 }
