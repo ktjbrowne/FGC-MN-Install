@@ -27,6 +27,7 @@ PORTA=''
 PORTB=''
 
 USER_NAME=''
+USER_PASS=''
 MNALIAS=''
 UNCOUNTER=1
 
@@ -205,6 +206,19 @@ doSystemVars(){
     fi
   done
 
+  # Set new user mn1 password to a big string.
+  printHead1 "User Pass"
+  useradd -m "${USER_NAME}" -s /bin/bash
+  if ! [ -x "$(command -v pwgen)" ]
+  then
+    USERPASS=$(openssl rand -hex 36)
+    echo "${USER_NAME}:${USERPASS}" | chpasswd
+  else
+    USERPASS=$(pwgen -1 -s 44)
+    echo "${USER_NAME}:${USERPASS}" | chpasswd
+  fi
+
+
 }
 ###############################################################################
 
@@ -236,12 +250,11 @@ prettyPrint "Masternode Private Key" "${MN_KEY}"
 #prettyPrint "Transaction Hash" "${TXHASH}"
 #prettyPrint "Output Index Number" "${OUTPUTIDX}"
 prettyPrint "Alias" "${USER_NAME}_${MNALIAS}"
+prettyPrint "UserPass" "${USERPASS}"
 echo
 }
 
-doSystemConfig(){
-return 0
-}
+
 
 ## install dependencies
 doSystemPackages(){
@@ -268,7 +281,7 @@ apt-get update
 apt-get install -y libdb4.8-dev libdb4.8++-dev
 
 # Add in older boost files if needed.
-printHead1 "intalling boost"
+printHead1 "installing boost"
 sleep 0.5
 if [ ! -f /usr/lib/x86_64-linux-gnu/libboost_system.so.1.58.0 ]; then
   # Add in 16.04 repo.
@@ -284,7 +297,7 @@ sleep 0.5
 # Make sure certain programs are installed.
 apt-get install -y screen curl htop gpw unattended-upgrades jq bc pwgen libminiupnpc10 ufw lsof util-linux gzip denyhosts procps unzip
 
-printHead1 "setting auto update"
+printHead1 "writing auto update config"
 sleep 0.5
 if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
   # Enable auto updating of Ubuntu security packages.
@@ -307,6 +320,14 @@ timedatectl set-ntp on
 # Increase open files limit.
 ulimit -n 4096
 
+printHead1 "config firewall"
+sleep 0.5
+ufw limit 22
+ufw allow 123
+echo "y" | ufw enable
+ufw reload
+
+
 printHead1 "checking user swap file"
 sleep 0.5
 if [ ! -f "/swapfile_${USER_NAME}"  ]; then
@@ -316,44 +337,30 @@ if [ ! -f "/swapfile_${USER_NAME}"  ]; then
   mkswap "/swapfile_${USER_NAME}"
   swapon "/swapfile_${USER_NAME}"
   #echo "/swapfile_${USER_NAME} none swap defaults 0 0" >> /etc/fstab
+  printHead2 swapon -s
 else printHead2 "user swap file already exists"
 fi
 
+
+
 }
 
 
-## install dependencies
-doSystemPackages_(){
-printHead0 "INSTALLING DEPENDENCIES"
-sleep 3
-
-
-printHead1 "...install packages...start"
-apt-get -qq update
-apt-get -qq upgrade
-apt-get -qq autoremove
-apt-get -qq install wget htop unzip
-apt-get -qq install build-essential && apt-get -qq install libtool autotools-dev autoconf automake && apt-get -qq install libssl-dev && apt-get -qq install libboost-all-dev && apt-get -qq install software-properties-common && add-apt-repository -y ppa:bitcoin/bitcoin && apt update && apt-get -qq install libdb4.8-dev && apt-get -qq install libdb4.8++-dev && apt-get -qq install libminiupnpc-dev && apt-get -qq install libqt4-dev libprotobuf-dev protobuf-compiler && apt-get -qq install libqrencode-dev && apt-get -qq install git && apt-get -qq install pkg-config && apt-get -qq install libzmq3-dev
-apt-get -qq install aptitude
-
-aptitude -y -q install fail2ban
-service fail2ban restart
-
-apt-get -qq install ufw
-echo "...install packages...end"
-
-}
-
-## Get Port and do ufw
-doPorts() {
-return 0
-}
 
 ## download binaries
 doDownload() {
 return 0
 }
 
+
+doSystemConfig(){
+return 0
+}
+
+## Get Port and do ufw
+doPorts() {
+return 0
+}
 ## make config file
 doConfigs() {
 return 0
@@ -468,9 +475,8 @@ waitOnProgram() {
 doWelcome
 doSystemValidation
 doSystemVars
-doReview
 doSystemPackages
-
+doReview
 #setInputs
 #doReview
 
