@@ -42,8 +42,8 @@ OUTPUTIDX=''
 #
 # show script Details
 doWelcome(){
-  prettySection "...Welcome to the FGC Multi MN Installer for v_1.2.5"
-  #read -e -p "Enter your Private Key (genkey)" MN_KEY
+  prettySection "Welcome to the FGC Multi MN Installer for v_1.2.5"
+  #read -e -p "Enter your Private Key (genkey):  " MN_KEY
 }
 
 
@@ -145,6 +145,7 @@ doSystemValidation(){
     mkswap /swapfile
     swapon /swapfile
     echo "/swapfile none swap defaults 0 0" >> /etc/fstab
+  else echo "swap exists for root"
   fi
   sleep 3
 
@@ -239,8 +240,8 @@ return 0
 
 ## install dependencies
 doSystemPackages(){
-prettySection "INSTALLING DEPENDENCIES...START"
-
+prettySection "INSTALLING DEPENDENCIES"
+sleep 3
 
 
 echo "...install packages...start"
@@ -353,7 +354,7 @@ prettyPrint() {
 }
 
 prettySection() {
-  printf "\\n\\n\\e[42;1m***    %-40s    ***\\e[0m\\n" "$1"
+  printf "\\n\\n\\e[30;1m***    %-43s    ***\\e[0m\\n" "$1"
 }
 
 waitOnProgram() {
