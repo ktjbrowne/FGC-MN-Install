@@ -42,7 +42,7 @@ OUTPUTIDX=''
 #
 # show script Details
 doWelcome(){
-  prettySection "Welcome to the FGC Multi MN Installer for v_1.2.5"
+  printHead0 "Welcome to the FGC Multi MN Installer for v_1.2.5"
   #read -e -p "Enter your Private Key (genkey):  " MN_KEY
 }
 
@@ -52,12 +52,12 @@ doWelcome(){
 ###############################################################################
 ## system Check
 doSystemValidation(){
-  prettySection "VALIDATING SYSTEM"
+  printHead0 "VALIDATING SYSTEM"
   sleep 1
 
   ################################
   # Only run if root.
-  echo "check root user"
+  printHead1 "check root user"
   sleep 0.5
   if [ "$(whoami)" != "root" ]; then
     echo "Script must be run as user: root"
@@ -71,14 +71,14 @@ doSystemValidation(){
 
   ################################
   # Check for systemd
-  echo "check systemd"
+  printHead1 "check systemd"
   sleep 0.5
   systemctl --version >/dev/null 2>&1 || { echo "systemd is required. Are you using Ubuntu 16.04 or 18.04?" >&2; exit 1; }
 
 
   ################################
   # Check for Ubuntu
-  echo "check system version"
+  printHead1 "check system version"
   sleep 0.5
   if [ -f /etc/os-release ]; then
     . /etc/os-release
@@ -122,7 +122,7 @@ doSystemValidation(){
 
   ################################
   ##Check Free Space
-  echo "check free space"
+  printHead1 "check free space"
   sleep 0.5
   FREEPSPACE=$(df -P . | tail -1 | awk '{print $4}')
   if [ ${FREEPSPACE} -lt 2097152 ]; then
@@ -139,7 +139,7 @@ doSystemValidation(){
 
   ################################
   #Check Swap file for Root, will only create on first run.
-  echo "check root swap file"
+  printHead1 "check root swap file"
   sleep 0.5
   if [ ! -f /swapfile  ]; then
     echo "no swap file, creating swap for root"
@@ -147,7 +147,7 @@ doSystemValidation(){
     chmod 600 /swapfile
     mkswap /swapfile
     swapon /swapfile
-    echo "/swapfile none swap defaults 0 0" >> /etc/fstab
+    #echo "/swapfile none swap defaults 0 0" >> /etc/fstab
   else echo "swap exists for root"
   fi
 
@@ -157,15 +157,15 @@ doSystemValidation(){
 ###############################################################################
 ###############################################################################
 doSystemVars(){
-  prettySection "CONFIG SYSTEM VARIABLES"
+  printHead0 "CONFIG SYSTEM VARIABLES"
   sleep 1
   #get IPs
-  echo "IPs..."
+  printHead1 "IPs..."
   PUBLIC_IP="$(wget -qO- -o- ipinfo.io/ip)"
   PRIVATE_IP="$(ip route get 8.8.8.8 | sed 's/ uid .*//' | awk '{print $NF; exit}')"
 
   #check default port v existing
-  echo "Ports..."
+  printHead1 "Ports..."
   sleep 0.5
   PORTB=''
   if [ -z "${PORTB}" ] && [ -x "$(command -v netstat)" ] && [[ $( netstat -tulpn | grep "/${COIN_DAEMON}" | grep "${DEFAULT_PORT}" | wc -c ) -gt 0 ]]
@@ -188,7 +188,7 @@ doSystemVars(){
   fi
 
   #Set Username
-  echo "UserName..."
+  printHead1 "UserName..."
   sleep 0.5
   # Set alias as the hostname.
   USER_NAME="${COIN_SYMBOL,,}_mn1"
@@ -212,7 +212,7 @@ doSystemVars(){
 ###############################################################################
 ###############################################################################
 doReview(){
-prettySection "REVIEW INPUTS"
+printHead0 "REVIEW INPUTS"
 sleep 1
 echo
 prettyPrint "Username" "${USER_NAME}"
@@ -245,9 +245,9 @@ return 0
 
 ## install dependencies
 doSystemPackages(){
-prettySection "INSTALLING DEPENDENCIES"
+printHead0 "INSTALLING DEPENDENCIES"
 sleep 1
-echo "updating system"
+printHead1 "updating system"
 sleep 0.5
 # Update the system.
 DEBIAN_FRONTEND=noninteractive apt-get install -yq libc6 software-properties-common
@@ -258,14 +258,14 @@ DEBIAN_FRONTEND=noninteractive apt-get -yq -o Dpkg::Options::="--force-confdef" 
 apt-get -f install -y &
 waitOnProgram "Updating system. This may take several minutes"
 
-echo "installing bitcoin"
+printHead1 "installing bitcoin"
 sleep 0.5
 echo | add-apt-repository ppa:bitcoin/bitcoin
 apt-get update
 apt-get install -y libdb4.8-dev libdb4.8++-dev
 
 # Add in older boost files if needed.
-echo "intalling boost"
+printHead1 "intalling boost"
 sleep 0.5
 if [ ! -f /usr/lib/x86_64-linux-gnu/libboost_system.so.1.58.0 ]; then
   # Add in 16.04 repo.
@@ -276,12 +276,12 @@ if [ ! -f /usr/lib/x86_64-linux-gnu/libboost_system.so.1.58.0 ]; then
   apt-get install -y libboost-system1.58.0 libboost-filesystem1.58.0 libboost-program-options1.58.0 libboost-thread1.58.0
 fi
 
-echo "installing apps"
+printHead1 "installing apps"
 sleep 0.5
 # Make sure certain programs are installed.
 apt-get install -y screen curl htop gpw unattended-upgrades jq bc pwgen libminiupnpc10 ufw lsof util-linux gzip denyhosts procps unzip
 
-echo "setting auto update"
+printHead1 "setting auto update"
 sleep 0.5
 if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
   # Enable auto updating of Ubuntu security packages.
@@ -304,7 +304,7 @@ timedatectl set-ntp on
 # Increase open files limit.
 ulimit -n 4096
 
-echo "checking user swap file"
+printHead1 "checking user swap file"
 sleep 0.5
 if [ ! -f "/swapfile_${USER_NAME}"  ]; then
   echo "no user swap file, creating"
@@ -312,7 +312,7 @@ if [ ! -f "/swapfile_${USER_NAME}"  ]; then
   chmod 600 "/swapfile_${USER_NAME}"
   mkswap "/swapfile_${USER_NAME}"
   swapon "/swapfile_${USER_NAME}"
-  echo "/swapfile_${USER_NAME} none swap defaults 0 0" >> /etc/fstab
+  #echo "/swapfile_${USER_NAME} none swap defaults 0 0" >> /etc/fstab
 else echo "user swap file already exists"
 fi
 
@@ -321,11 +321,11 @@ fi
 
 ## install dependencies
 doSystemPackages_(){
-prettySection "INSTALLING DEPENDENCIES"
+printHead0 "INSTALLING DEPENDENCIES"
 sleep 3
 
 
-echo "...install packages...start"
+printHead1 "...install packages...start"
 apt-get -qq update
 apt-get -qq upgrade
 apt-get -qq autoremove
@@ -433,8 +433,12 @@ prettyPrint() {
   echo
 }
 
-prettySection() {
+printHead0() {
   printf "\\n\\n\\e[43;30m***    %-30s    ***\\e[0m\\n" "$1"
+}
+
+printHead1() {
+  printf "\\n\\n\\e[1;96;40m* %-30s *\\e[0m\\n" "$1"
 }
 
 waitOnProgram() {
@@ -442,7 +446,7 @@ waitOnProgram() {
   local PID=$!
   local i=1
   while [ -d /proc/$PID ]; do
-    printf "\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}"
+    printHead1 "\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}"
     sleep 0.3
   done
   echo
