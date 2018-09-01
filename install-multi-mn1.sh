@@ -234,7 +234,7 @@ echo
 }
 
 doSystemConfig(){
-
+return 0
 }
 
 ## install dependencies
