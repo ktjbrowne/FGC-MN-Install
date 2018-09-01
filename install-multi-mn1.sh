@@ -139,16 +139,16 @@ doSystemValidation(){
 
   ################################
   #Check Swap file for Root, will only create on first run.
-  printHead1 "check root swap file"
+  printHead2 "check root swap file"
   sleep 0.5
   if [ ! -f /swapfile  ]; then
-    echo "no swap file, creating swap for root"
+    printHead1 "no swap file, creating swap for root"
     fallocate -l 256M /swapfile
     chmod 600 /swapfile
     mkswap /swapfile
     swapon /swapfile
     #echo "/swapfile none swap defaults 0 0" >> /etc/fstab
-  else printHead1 "swap exists for root"
+  else printHead2 "swap exists for root"
   fi
 
 }
@@ -286,11 +286,11 @@ sleep 0.5
 if [ ! -f /etc/apt/apt.conf.d/20auto-upgrades ]; then
   # Enable auto updating of Ubuntu security packages.
   printf 'APT::Periodic::Enable "1";
-APT::Periodic::Download-Upgradeable-Packages "1";
-APT::Periodic::Update-Package-Lists "1";
-APT::Periodic::Unattended-Upgrade "1";
-APT::Get::Assume-Yes "true";
-' > /etc/apt/apt.conf.d/20auto-upgrades
+  APT::Periodic::Download-Upgradeable-Packages "1";
+  APT::Periodic::Update-Package-Lists "1";
+  APT::Periodic::Unattended-Upgrade "1";
+  APT::Get::Assume-Yes "true";
+  ' > /etc/apt/apt.conf.d/20auto-upgrades
 fi
 
 echo
@@ -307,13 +307,13 @@ ulimit -n 4096
 printHead1 "checking user swap file"
 sleep 0.5
 if [ ! -f "/swapfile_${USER_NAME}"  ]; then
-  echo "no user swap file, creating"
+  printHead2 "no user swap file, creating"
   fallocate -l 256M "/swapfile_${USER_NAME}"
   chmod 600 "/swapfile_${USER_NAME}"
   mkswap "/swapfile_${USER_NAME}"
   swapon "/swapfile_${USER_NAME}"
   #echo "/swapfile_${USER_NAME} none swap defaults 0 0" >> /etc/fstab
-else echo "user swap file already exists"
+else printHead2 "user swap file already exists"
 fi
 
 }
@@ -423,7 +423,7 @@ prettyPrint() {
   echo -n -e "\\e[96;40m${LABEL}\\e[0m:"
   if [ $(echo -n "${LABEL}" | wc -m) -lt 7 ]; then
     echo -n -e "\t\t"
-  elif [ $(echo -n "${LABEL}" | wc -m) -lt 15 ]; then 
+  elif [ $(echo -n "${LABEL}" | wc -m) -lt 15 ]; then
     echo -n -e "\t"
   fi
   echo -n -e "\t${VALUE}"
@@ -440,6 +440,11 @@ printHead0() {
 printHead1() {
   printf "\\e[96;40m* %-30s *\\e[0m\\n" "$1"
 }
+
+printHead2() {
+  printf "\\e[96;40m   %-30s *\\e[0m\\n" "$1"
+} 
+
 
 waitOnProgram() {
   local MESSAGE=$1
