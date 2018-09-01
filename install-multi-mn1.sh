@@ -457,12 +457,13 @@ printHead2() {
 }
 
 
+
 waitOnProgram() {
   local MESSAGE=$1
   local PID=$!
   local i=1
   while [ -d /proc/$PID ]; do
-    printf "\\e[96;40m\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}\\e[0m\\n"
+    printf "\\r\\e[96;40m${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}\\e[0m\\n"
     #sleep 0.3
   done
   echo
