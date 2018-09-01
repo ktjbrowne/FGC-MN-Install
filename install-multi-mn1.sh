@@ -53,7 +53,7 @@ doWelcome(){
 ## system Check
 doSystemValidation(){
   prettySection "VALIDATING SYSTEM"
-  sleep 3
+  sleep 1
 
   ################################
   # Only run if root.
@@ -72,7 +72,7 @@ doSystemValidation(){
   # Check for systemd
   echo "check systemd"
   systemctl --version >/dev/null 2>&1 || { echo "systemd is required. Are you using Ubuntu 16.04 or 18.04?" >&2; exit 1; }
-  sleep 2
+  sleep 1
 
   ################################
   # Check for Ubuntu
@@ -116,7 +116,7 @@ doSystemValidation(){
     echo
     exit 1
   fi
-  sleep 2
+  sleep 1
 
   ################################
   ##Check Free Space
@@ -126,7 +126,7 @@ doSystemValidation(){
     echo "${FREEPSACE} bytes of free disk space found. Need at least 2Gb of free space to proceed"
     exit 1
   fi
-  sleep 2
+  sleep 1
 
   # Check if we have enough memory
   if [[ `free -m | awk '/^Mem:/{print $2}'` -lt 900 ]]; then
@@ -146,7 +146,7 @@ doSystemValidation(){
     echo "/swapfile none swap defaults 0 0" >> /etc/fstab
   else echo "swap exists for root"
   fi
-  sleep 3
+  sleep 1
 
 }
 ###############################################################################
