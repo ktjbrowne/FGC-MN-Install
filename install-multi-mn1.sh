@@ -462,11 +462,12 @@ waitOnProgram() {
 ################################################################################
 ################################################################################
 ## Main Program Run
-doWelcome
-doSystemValidation
-doSystemVars
-doReview
-doSystemPackages
+#doWelcome
+#doSystemValidation
+#doSystemVars
+#doReview
+#doSystemPackages
+waitOnProgram "testeststsetsetset"
 #setInputs
 #doReview
 
