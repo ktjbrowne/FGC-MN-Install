@@ -43,7 +43,7 @@ OUTPUTIDX=''
 # show script Details
 doWelcome(){
   prettySection "Welcome to the FGC Multi MN Installer for v_1.2.5"
-  #read -e -p "Enter your Private Key (genkey):  " MN_KEY
+  read -e -p "Enter your Private Key (genkey):  " MN_KEY
 }
 
 
@@ -67,7 +67,6 @@ doSystemValidation(){
     echo "And then re-run this command."
     exit -1
   fi
-  sleep 2
 
   ################################
   # Check for systemd
@@ -222,6 +221,7 @@ if [ "${PUBLIC_IP}" != "${PRIVATE_IP}" ]; then
 else
   prettyPrint "Public Address" "${PUBLIC_IP}"
 fi
+# ports
 if [ -z "${PORTB}" ]; then
   prettyPrint "Port" "auto" "find available port"
 else
@@ -354,7 +354,7 @@ prettyPrint() {
 }
 
 prettySection() {
-  printf "\\n\\n\\e[43;4m***    %-30s    ***\\e[0m\\n" "$1"
+  printf "\\n\\n\\e[43;1m***    %-30s    ***\\e[0m\\n" "$1"
 }
 
 waitOnProgram() {
