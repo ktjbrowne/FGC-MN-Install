@@ -438,7 +438,7 @@ printHead0() {
 }
 
 printHead1() {
-  printf "\\e[96;40m* %-30s *\\e[0m" "$1"
+  printf "\\e[96;40m* %-30s *\\e[0m\\n" "$1"
 }
 
 waitOnProgram() {
