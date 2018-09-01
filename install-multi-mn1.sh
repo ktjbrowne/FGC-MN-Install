@@ -420,7 +420,7 @@ prettyPrint() {
   local LABEL=$1
   local VALUE=$2
   local HINT=$3
-  echo -n -e "\\e[1;3m${LABEL}\\e[0m:"
+  echo -n -e "\\e[96;40m${LABEL}\\e[0m:"
   if [ $(echo -n "${LABEL}" | wc -m) -lt 7 ]; then
     echo -n -e "\t\t"
   elif [ $(echo -n "${LABEL}" | wc -m) -lt 15 ]; then
@@ -428,7 +428,7 @@ prettyPrint() {
   fi
   echo -n -e "\t${VALUE}"
   if [ "${HINT}" != "" ]; then
-    echo -n -e " \t\\e[2m(${HINT})\\e[0m"
+    echo -n -e " \t\\e[96;40m(${HINT})\\e[0m"
   fi
   echo
 }
@@ -438,7 +438,7 @@ printHead0() {
 }
 
 printHead1() {
-  printf "\\n\\n\\e[1;96;40m* %-30s *\\e[0m\\n" "$1"
+  printf "\\e[96;40m* %-30s *\\e[0m" "$1"
 }
 
 waitOnProgram() {
@@ -446,7 +446,7 @@ waitOnProgram() {
   local PID=$!
   local i=1
   while [ -d /proc/$PID ]; do
-    printHead1 "\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}"
+    echo "\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}"
     sleep 0.3
   done
   echo
