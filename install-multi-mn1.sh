@@ -356,6 +356,7 @@ prettyPrint() {
 prettySection() {
   printf "\\n\\n\\e[43;30m***    %-30s    ***\\e[0m\\n" "$1"
   printf "\\n\\n\\e[43;30m***    %    ***\\e[0m\\n" "$1"
+  printf "\\n\\n\\e[43;30;1m***    %    ***\\e[0m\\n" "$1"
 }
 
 waitOnProgram() {
