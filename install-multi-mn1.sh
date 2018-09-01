@@ -272,6 +272,7 @@ DEBIAN_FRONTEND=noninteractive apt-get -yq -o Dpkg::Options::="--force-confdef" 
 
 sleep 0.5
 
+echo
 apt-get -f install -y &
 waitOnProgram "Updating system. This may take several minutes"
 
