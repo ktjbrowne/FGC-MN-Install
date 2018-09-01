@@ -44,8 +44,8 @@ OUTPUTIDX=''
 doWelcome(){
   echo -e "\e[43;30;1m Yes it is awful \e[0m"
   echo -e "\e[43;30m Yes it is awful \e[0m"
-  echo -e "\e[30;43m Yes it is awful \e[0m"
-  echo -e "\e[30;43;1m Yes it is awful \e[0m"
+  echo -e "\e[30;43m NO BOLD \e[0m"
+  echo -e "\e[30;43;1m BOLD \e[0m"
   echo -e "\033[1m;30;43 Yes it is awful \e[0m"
 
 
