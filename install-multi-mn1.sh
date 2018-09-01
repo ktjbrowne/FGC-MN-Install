@@ -35,151 +35,179 @@ TXHASH=''
 OUTPUTIDX=''
 
 
-##################################################################
+###############################################################################
 ## MAIN Functions
-
-## show script Details
+###############################################################################
+###############################################################################
+#
+# show script Details
 doWelcome(){
-prettySection "...Welcome to the FGC Multi MN Installer for v_1.2.5"
-read -e -p "Enter your Private Key (genkey)" MN_KEY
+  prettySection "...Welcome to the FGC Multi MN Installer for v_1.2.5"
+  #read -e -p "Enter your Private Key (genkey)" MN_KEY
 }
 
+
+
+###############################################################################
+###############################################################################
 ## system Check
-doChecks(){
-prettySection "...1: RUNNING SYSTEM CHECKS...START"
-sleep 3
+doSystemValidation(){
+  prettySection "VALIDATING SYSTEM"
+  sleep 3
 
-################################
-# Only run if root.
-echo "...check root...start"
-if [ "$(whoami)" != "root" ]; then
-  echo "Script must be run as user: root"
-  echo "To switch to the root user type"
-  echo
-  echo "sudo su"
-  echo
-  echo "And then re-run this command."
-  exit -1
-fi
-echo "...check root...end"
-sleep 3
-################################
-
-################################
-# Check for systemd
-echo "...check systemclt...start"
-systemctl --version >/dev/null 2>&1 || { echo "systemd is required. Are you using Ubuntu 16.04 or 18.04?" >&2; exit 1; }
-echo "...check systemclt...end"
-sleep 3
-
-################################
-# Check for Ubuntu
-echo "...check system version...start"
-if [ -f /etc/os-release ]; then
-  . /etc/os-release
-  OS=${NAME}
-  VER=${VERSION_ID}
-elif type lsb_release >/dev/null 2>&1; then
-  OS=$(lsb_release -si)
-  VER=$(lsb_release -sr)
-elif [ -f /etc/lsb-release ]; then
-  . /etc/lsb-release
-  OS=${DISTRIB_ID}
-  VER=${DISTRIB_RELEASE}
-elif [ -f /etc/debian_version ]; then
-  OS=Debian
-  VER=$(cat /etc/debian_version)
-else
-  OS=$(uname -s)
-  VER=$(uname -r)
-fi
-
-if [ "$OS" != "Ubuntu" ]
-then
-  cat /etc/*-release
-  echo
-  echo "Are you using Ubuntu 16.04 or higher?"
-  echo
-  exit 1
-fi
-
-TARGET='16.03'
-if [ ${VER%.*} -eq ${TARGET%.*} ] && [ ${VER#*.} \> ${TARGET#*.} ] || [ ${VER%.*} -gt ${TARGET%.*} ]
-then
-  :
-else
-  cat /etc/*-release
-  echo
-  echo "Are you using Ubuntu 16.04 or higher?"
-  echo
-  exit 1
-fi
-echo "...check system version...end"
-sleep 3
-
-################################
-##Check Free Space
-echo "...check system space...start"
-FREEPSPACE=$(df -P . | tail -1 | awk '{print $4}')
-if [ ${FREEPSPACE} -lt 2097152 ]; then
-  echo "${FREEPSACE} bytes of free disk space found. Need at least 2Gb of free space to proceed"
-  exit 1
-fi
-echo "...check system space...end"
-sleep 3
-prettySection "...1- RUNNING SYSTEM CHECKS...END"
-sleep 4
-}
-
-## get TX or PK
-setInputs(){
-prettySection "...SET VARIABLES...START"
-PUBLIC_IP="$(wget -qO- -o- ipinfo.io/ip)"
-
-PRIVATE_IP="$(ip route get 8.8.8.8 | sed 's/ uid .*//' | awk '{print $NF; exit}')"
-MN_KEY=''
-
-PORTB=''
-if [ -z "${PORTB}" ] && [ -x "$(command -v netstat)" ] && [[ $( netstat -tulpn | grep "/${COIN_DAEMON}" | grep "${DEFAULT_PORT}" | wc -c ) -gt 0 ]]
-then
-  PORTB="${DEFAULT_PORT}a"
-fi
-if [ -z "${PORTB}" ] && [ -x "$(command -v ufw)" ] && [[ $( ufw status | grep "${DEFAULT_PORT}" | wc -c ) -gt 0 ]]
-then
-  PORTB="${DEFAULT_PORT}b"
-fi
-if [ -z "${PORTB}" ] && [ -x "$(command -v iptables)" ] && [[ $( iptables -t nat -L | grep "${DEFAULT_PORT}" | wc -c) -gt 0 ]]
-then
-  PORTB="${DEFAULT_PORT}c"
-fi
-if [ -z "${PORTB}" ]
-then
-  PORTB="${DEFAULT_PORT}"
-else
-  PORTB=''
-fi
-
-# Set alias as the hostname.
-USER_NAME="${COIN_SYMBOL,,}_mn1"
-MNALIAS="$(hostname)"
-# Auto pick a user that is blank.
-UNCOUNTER=1
-while :
-do
-  if id "${USER_NAME}" >/dev/null 2>&1; then
-    UNCOUNTER=$((UNCOUNTER+1))
-    USER_NAME="${COIN_SYMBOL,,}_mn${UNCOUNTER}"
-  else
-    break
+  ################################
+  # Only run if root.
+  echo "check root user"
+  if [ "$(whoami)" != "root" ]; then
+    echo "Script must be run as user: root"
+    echo "To switch to the root user type"
+    echo
+    echo "sudo su"
+    echo
+    echo "And then re-run this command."
+    exit -1
   fi
-done
+  sleep 2
 
-prettySection "...GET VARIABLES...END"
-sleep 3
+  ################################
+  # Check for systemd
+  echo "check systemd"
+  systemctl --version >/dev/null 2>&1 || { echo "systemd is required. Are you using Ubuntu 16.04 or 18.04?" >&2; exit 1; }
+  sleep 2
+
+  ################################
+  # Check for Ubuntu
+  echo "check system version"
+  if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=${NAME}
+    VER=${VERSION_ID}
+  elif type lsb_release >/dev/null 2>&1; then
+    OS=$(lsb_release -si)
+    VER=$(lsb_release -sr)
+  elif [ -f /etc/lsb-release ]; then
+    . /etc/lsb-release
+    OS=${DISTRIB_ID}
+    VER=${DISTRIB_RELEASE}
+  elif [ -f /etc/debian_version ]; then
+    OS=Debian
+    VER=$(cat /etc/debian_version)
+  else
+    OS=$(uname -s)
+    VER=$(uname -r)
+  fi
+
+  if [ "$OS" != "Ubuntu" ]
+  then
+    cat /etc/*-release
+    echo
+    echo "Are you using Ubuntu 16.04 or higher?"
+    echo
+    exit 1
+  fi
+
+  TARGET='16.03'
+  if [ ${VER%.*} -eq ${TARGET%.*} ] && [ ${VER#*.} \> ${TARGET#*.} ] || [ ${VER%.*} -gt ${TARGET%.*} ]
+  then
+    :
+  else
+    cat /etc/*-release
+    echo
+    echo "Are you using Ubuntu 16.04 or higher?"
+    echo
+    exit 1
+  fi
+  sleep 2
+
+  ################################
+  ##Check Free Space
+  echo "check free space"
+  FREEPSPACE=$(df -P . | tail -1 | awk '{print $4}')
+  if [ ${FREEPSPACE} -lt 2097152 ]; then
+    echo "${FREEPSACE} bytes of free disk space found. Need at least 2Gb of free space to proceed"
+    exit 1
+  fi
+  sleep 2
+
+  # Check if we have enough memory
+  if [[ `free -m | awk '/^Mem:/{print $2}'` -lt 900 ]]; then
+    echo "This installation requires at least 1GB of RAM.";
+    exit 1
+  fi
+
+  ################################
+  #Check Swap file for Root, will only create on first run.
+  echo "check root swap file"
+  if [ ! -f /swapfile  ]; then
+    echo "no swap file, creating swap for root"
+    fallocate -l 256M /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    echo "/swapfile none swap defaults 0 0" >> /etc/fstab
+  fi
+  sleep 3
+
 }
+###############################################################################
 
+###############################################################################
+###############################################################################
+doSystemVars(){
+  prettySection "CONFIG SYSTEM VARIABLES"
+
+  #get IPs
+  echo "IPs..."
+  PUBLIC_IP="$(wget -qO- -o- ipinfo.io/ip)"
+  PRIVATE_IP="$(ip route get 8.8.8.8 | sed 's/ uid .*//' | awk '{print $NF; exit}')"
+
+  #check default port v existing
+  echo "Ports..."
+  PORTB=''
+  if [ -z "${PORTB}" ] && [ -x "$(command -v netstat)" ] && [[ $( netstat -tulpn | grep "/${COIN_DAEMON}" | grep "${DEFAULT_PORT}" | wc -c ) -gt 0 ]]
+  then
+    PORTB="${DEFAULT_PORT}a"
+  fi
+  if [ -z "${PORTB}" ] && [ -x "$(command -v ufw)" ] && [[ $( ufw status | grep "${DEFAULT_PORT}" | wc -c ) -gt 0 ]]
+  then
+    PORTB="${DEFAULT_PORT}b"
+  fi
+  if [ -z "${PORTB}" ] && [ -x "$(command -v iptables)" ] && [[ $( iptables -t nat -L | grep "${DEFAULT_PORT}" | wc -c) -gt 0 ]]
+  then
+    PORTB="${DEFAULT_PORT}c"
+  fi
+  if [ -z "${PORTB}" ]
+  then
+    PORTB="${DEFAULT_PORT}"
+  else
+    PORTB=''
+  fi
+
+  #Set Username
+  echo "UserName..."
+  # Set alias as the hostname.
+  USER_NAME="${COIN_SYMBOL,,}_mn1"
+  MNALIAS="$(hostname)"
+  # Auto pick a user that is blank.
+  UNCOUNTER=1
+  while :
+  do
+    if id "${USER_NAME}" >/dev/null 2>&1; then
+      UNCOUNTER=$((UNCOUNTER+1))
+      USER_NAME="${COIN_SYMBOL,,}_mn${UNCOUNTER}"
+    else
+      break
+    fi
+  done
+
+}
+###############################################################################
+
+
+###############################################################################
+###############################################################################
 doReview(){
-prettySection "...REVIEW INPUTS...start"
+prettySection "REVIEW INPUTS"
 
 echo
 prettyPrint "Username" "${USER_NAME}"
@@ -198,29 +226,22 @@ if [ -z "${PORTB}" ]; then
 else
   prettyPrint "Port" "${PORTB}"
 fi
-prettyPrint "Masternode Private Key" "auto" "self generate one"
+prettyPrint "Masternode Private Key" "${MN_KEY}"
 prettyPrint "Transaction Hash" "${TXHASH}"
 prettyPrint "Output Index Number" "${OUTPUTIDX}"
 prettyPrint "Alias" "${USER_NAME}_${MNALIAS}"
 echo
+}
+
+doSystemConfig(){
 
 }
 
 ## install dependencies
-doDependencies(){
-prettySection "...2- INSTALLING DEPENDENCIES...START"
+doSystemPackages(){
+prettySection "INSTALLING DEPENDENCIES...START"
 
-#Swap file
-echo "...swap file...start"
-if [ ! -f /swapfile  ]; then
-  fallocate -l 256M /swapfile
-  chmod 600 /swapfile
-  mkswap /swapfile
-  swapon /swapfile
-  echo "/swapfile none swap defaults 0 0" >> /etc/fstab
-fi
-echo "...swap file...start"
-sleep 3
+
 
 echo "...install packages...start"
 apt-get -qq update
@@ -236,7 +257,7 @@ service fail2ban restart
 apt-get -qq install ufw
 echo "...install packages...end"
 
-prettySection "...2- INSTALLING DEPENDENCIES...END"
+
 }
 
 ## Get Port and do ufw
@@ -274,7 +295,8 @@ checkStatus() {
 return 0
 }
 
-##############################################
+################################################################################
+################################################################################
 ## Other Functions
 
 stringToInt() {
@@ -347,12 +369,22 @@ waitOnProgram() {
 
 
 
-
-#################################################################
+################################################################################
+################################################################################
 ## Main Program Run
-echo "starting...."
 doWelcome
-doChecks
-doDependencies
-setInputs
+doSystemValidation
+doSystemVars
 doReview
+
+#doDependencies
+#setInputs
+#doReview
+
+
+
+
+
+
+################################################################################
+################################################################################
