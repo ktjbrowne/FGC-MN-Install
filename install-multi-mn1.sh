@@ -46,6 +46,7 @@ doWelcome(){
   echo -e "\e[43;30m Yes it is awful \e[0m"
   echo -e "\e[30;43m Yes it is awful \e[0m"
   echo -e "\e[30;43;1m Yes it is awful \e[0m"
+  echo -e "\e[1;31;42m Yes it is awful \e[0m"
   #prettySection "Welcome to the FGC Multi MN Installer for v_1.2.5"
   #read -e -p "Enter your Private Key (genkey):  " MN_KEY
 }
