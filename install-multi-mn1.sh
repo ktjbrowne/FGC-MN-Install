@@ -44,7 +44,7 @@ OUTPUTIDX=''
 # show script Details
 doWelcome(){
   printHead0 "Welcome to the FGC Multi MN Installer for v_1.2.5"
-  echo "V2"
+  echo "V3"
   #read -e -p "Enter your Private Key (genkey):  " MN_KEY
 }
 
