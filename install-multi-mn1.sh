@@ -458,7 +458,7 @@ printHead2() {
   printf "\\e[96;40m -%-30s *\\e[0m\\n" "$1"
 }
 
-waitOnProgram_() {
+waitOnProgram() {
   local MESSAGE=$1
   local PID=$!
   local i=1
@@ -469,7 +469,7 @@ waitOnProgram_() {
   echo
 }
 
-waitOnProgram() {
+waitOnProgram_() {
   local MESSAGE=$1
   local PID=$!
   local i=1
