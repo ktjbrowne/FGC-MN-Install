@@ -340,12 +340,10 @@ if [ ! -f "/swapfile_${USER_NAME}"  ]; then
   mkswap "/swapfile_${USER_NAME}"
   swapon "/swapfile_${USER_NAME}"
   #echo "/swapfile_${USER_NAME} none swap defaults 0 0" >> /etc/fstab
-  printHead2 swapon -s
+  SWAP="$(swapon -s)"
+  printHead2 "${SWAP}"
 else printHead2 "user swap file already exists"
 fi
-
-
-
 }
 
 
@@ -474,6 +472,10 @@ waitOnProgram() {
 ################################################################################
 ## Main Program Run
 
+SWAP="$(swapon -s)"
+printHead2 "${SWAP}"
+
+<< CMT
 
 doWelcome
 doSystemValidation
@@ -483,7 +485,7 @@ doReview
 #setInputs
 #doReview
 
-
+CMT
 
 
 
