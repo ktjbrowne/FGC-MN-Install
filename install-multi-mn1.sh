@@ -463,7 +463,7 @@ waitOnProgram() {
   local PID=$!
   local i=1
   while [ -d /proc/$PID ]; do
-    printf "\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}"
+    printf "\\e[96;40m\\r${SPINNER:i++%${#SPINNER}:1} ${MESSAGE}\\e[0m"
     sleep 0.3
   done
   echo
@@ -478,6 +478,11 @@ waitOnProgram_() {
     #sleep 0.3
   done
   echo
+
+  while true; do
+    printf '\b%s' "${sp:i++%n:1}"
+    sleep 0.1
+done
 }
 
 
