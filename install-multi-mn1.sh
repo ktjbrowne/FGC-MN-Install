@@ -331,7 +331,7 @@ ulimit -n 4096
 
 printHead1 "config firewall"
 sleep 0.5
-ufw limit 22
+ufw allow 22
 ufw allow 123
 echo "y" | ufw enable
 ufw reload
