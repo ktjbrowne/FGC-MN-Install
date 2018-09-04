@@ -371,12 +371,17 @@ doInstall() {
 
   printHead0 "INSTALLING ${COIN_NAME}"
   sleep 1
+  printHead1 "make directory"
+  sleep 0.5
   mkdir -p /home/${USER_NAME}/.local/bin
   find /tmp/extract -type f | xargs chmod 755
   find /tmp/extract -type f -exec mv -- "{}" /home/${USER_NAME}/.local/bin \;
   rm -rf /tmp/extract
   chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.local
-
+  printHead1 "move files"
+  sleep 0.5
+  printHead1 "set attributes"
+  sleep 0.5
 }
 
 
@@ -406,6 +411,10 @@ doPorts() {
   ufw allow ${PORTB}
   echo "y" | ufw enable
   ufw reload
+
+  PORTS="$(netstat -l)"
+  printHead2 "${PORTS}"
+
 }
 
 ## make config file
@@ -439,7 +448,7 @@ masternode=1
 ${ADDNODES}
 " > "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
 
-chmod /home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}
+chmod 0600 /home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}
 chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/${COIN_CONFIG_FOLDER}
 
 printHead0 "CREATING SERVICE CONFIGS"
@@ -461,16 +470,43 @@ WantedBy=multi-user.target" > "/etc/systemd/system/${USER_NAME}.service"
 }
 
 ## Enable & Start
+enableCoin() {
+printHead0 "STARTING ${COIN_NAME}"
+sleep 1
+sudo systemctl enable "${USER_NAME}"
+sudo systemctl start "${USER_NAME}"
+sudo systemctl start "${USER_NAME}".service
+
+}
+
+## Enable & Start
 startCoin() {
+printHead0 "STARTING ${COIN_NAME}"
+sleep 1
+/home/${USER_NAME}/.local/bin/${COIN_DAEMON} -conf=/home${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE} -datadir=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}
 
-return 0
+# Output info.
+systemctl status --no-pager --full "${USER_NAME}"
+sleep 2
+echo
+ufw status
+sleep 4
+echo
 
+sleep 10
+/home/${USER_NAME}/.local/bin/${COIN_DAEMON} getblockcount
+}
 
+## stop COIN
+stopCoin() {
+printHead0 "STOPPING ${COIN_NAME}"
+sleep 1
+/home/${USER_NAME}/.local/bin/${COIN_CLI} stop
 }
 
 ## get BootStrap
 doBootStrap() {
-  prettySection "BOOTSTRAPPING"
+  printHead0 "BOOTSTRAPPING"
   sleep 1
   # Monitor block count and wait for it to be caught up.
   if [ -z "$var" ]
@@ -490,7 +526,57 @@ return 0
 
 ## check MN status
 checkStatus() {
-return 0
+  printHead0 "Step 10: Setup Complete. Document the below information"
+  # Output more info.
+  #echo ========== Donation Information ==================
+  #echo
+  #echo "# Send a tip in ${COIN_NAME} to the author of this script"
+  #prettyPrint "${COIN_SYMBOL} Donation" "${DONATION_ADDRESS}"
+  #echo
+  echo ========== Useful Root Commands ==================
+  echo
+  prettyPrint "Daemon Status" "systemctl status --no-pager --full ${USER_NAME}"
+  prettyPrint " Daemon Start" "systemctl start ${USER_NAME}"
+  prettyPrint "  Daemon Stop" "systemctl stop ${USER_NAME}"
+  prettyPrint "    MN Status" "su - ${USER_NAME} -c '${COIN_CLI} masternode status'"
+  prettyPrint "  Block Count" "su - ${USER_NAME} -c '${COIN_CLI} getblockcount'"
+  echo
+
+  # Print IP and PORT.
+  echo ========== Access and Credentials ================
+  echo
+  echo Masternode is installed under user ${USER_NAME}, you must ssh into the system using credentials below
+  echo
+  prettyPrint "SSH Info" "ssh ${USER_NAME}@${PUBLIC_IP}"
+  prettyPrint "Username" "${USER_NAME}"
+  prettyPrint "Password" "${USERPASS}"
+  echo
+  echo "Useful commands to know"
+  prettyPrint "     Get Info" "${COIN_CLI} getinfo"
+  prettyPrint "    MN Status" "${COIN_CLI} masternode status"
+  prettyPrint "  Block Count" "${COIN_CLI} getblockcount"
+  echo
+  echo ========== Masternode Information ================
+  echo
+  /home/${USER_NAME}/.local/bin/${COIN_CLI} -datadir=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/ masternode status
+  echo
+  prettyPrint "           Alias" "${USER_NAME}_${MNALIAS}"
+  prettyPrint "            Host" "${PUBLIC_IP}:${PORTB}"
+  prettyPrint "     Private Key" "${MN_KEY}"
+  if [ ! -z "${TXHASH}" ]
+  then
+    prettyPrint " Collateral txid" "${TXHASH}"
+    prettyPrint "Collateral index" "${OUTPUTIDX}"
+    echo
+    printf "\\e[33;1m%s\\e[0m\\n\\t%s" "Add to the masternode.conf configuration" "${USER_NAME}_${MNALIAS} ${PUBLIC_IP}:${PORTB} ${MN_KEY} ${TXHASH} ${OUTPUTIDX}"
+  else
+    echo
+    printf "\\e[33;1m%s\\e[0m\\n\\t%s" "Append the txhash and outputidx onto the masternode.conf configuration below" "${USER_NAME}_${MNALIAS} ${PUBLIC_IP}:${PORTB} ${MN_KEY} ${TXHASH} ${OUTPUTIDX}"
+  fi
+
+  echo
+  echo "Masternode is fully up to date now. Make sure the above information has been captured for your reference"
+
 }
 
 ################################################################################
