@@ -410,7 +410,62 @@ doPorts() {
 
 ## make config file
 doConfigs() {
+printHead0 "CREATING COIN CONFIGS"
+sleep 1
+  # Generate random password.
+  if ! [ -x "$(command -v pwgen)" ]; then
+    PWA="$(openssl rand -hex 36)"
+  else
+    PWA="$(pwgen -1 -s 44)"
+  fi
+
+  # TODO: Seed an addnodes list but first create a monitor script that auto-monitors/maintains a valid list of peer nodes
+
+su - "${USER_NAME}" -c "mkdir -p /home/${USER_NAME}/${COIN_CONFIG_FOLDER}/ && touch /home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
+printf "rpcuser=rpc_${USER_NAME}
+rpcpassword=${PWA}
+rpcallowip=127.0.0.1
+rpcport=${PORTA}
+listen=1
+server=1
+daemon=1
+logtimestamps=1
+maxconnections=256
+externalip=${PUBLIC_IP}
+bind=${PUBLIC_IP}:${PORTB}
+masternodeaddr=${PUBLIC_IP}
+masternodeprivkey=${MN_KEY}
+masternode=1
+${ADDNODES}
+" > "/home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}"
+
+chmod /home/${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE}
+chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/${COIN_CONFIG_FOLDER}
+
+printHead0 "CREATING SERVICE CONFIGS"
+sleep 1
+printf "[Unit]
+Description=${COIN_NAME} Masternode for user ${USER_NAME}
+After=network.target
+[Service]
+Type=forking
+User=${USER_NAME}
+WorkingDirectory=/home/${USER_NAME}
+ExecStart=/home/${USER_NAME}/.local/bin/${COIN_DAEMON} -conf=/home${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE} -datadir=/home/${USER_NAME}/${COIN_CONFIG_FOLDER}
+ExecStop=/home/${USER_NAME}/.local/bin/${COIN_CLI} -conf=/home${USER_NAME}/${COIN_CONFIG_FOLDER}/${COIN_CONFIG_FILE} -datadir=/home${USER_NAME}/${COIN_CONFIG_FOLDER} stop
+Restart=on-abort
+[Install]
+WantedBy=multi-user.target" > "/etc/systemd/system/${USER_NAME}.service"
+
+
+}
+
+## Enable & Start
+startCoin() {
+
 return 0
+
+
 }
 
 ## get BootStrap
@@ -426,10 +481,7 @@ doBootStrap() {
   fi
 }
 
-## Enable & Start
-startCoin() {
-return 0
-}
+
 
 ## check and show sync
 checkSync() {
@@ -535,6 +587,7 @@ doReview
 doDownload
 doInstall
 doPorts
+doConfigs
 
 
 ################################################################################
