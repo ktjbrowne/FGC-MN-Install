@@ -35,6 +35,12 @@ MN_KEY=''
 TXHASH=''
 OUTPUTIDX=''
 
+ADDNODES="addnode=188.166.80.20:57810
+addnode=173.230.141.205:57810
+addnode=140.82.51.61:57810
+addnode=167.99.33.74:57810
+addnode=45.33.55.198:57810"
+
 
 ###############################################################################
 ## MAIN Functions
@@ -44,7 +50,7 @@ OUTPUTIDX=''
 # show script Details
 doWelcome(){
   printHead0 "Welcome to the FGC Multi MN Installer for v_1.2.5"
-  echo "V3"
+  echo "V4"
   #read -e -p "Enter your Private Key (genkey):  " MN_KEY
 }
 
@@ -350,26 +356,74 @@ fi
 
 ## download binaries
 doDownload() {
-return 0
+
+  printHead0 "DOWNLOADING ${COIN_NAME}"
+  cd ~/ || exit
+  # Download and extract binary
+  curl -L ${COIN_APP_URL} -o artifact
+  mkdir -p /tmp/extract
+  ${EXTRACT_CMD}
+
 }
 
+# Copy binary to user home directory
+doInstall() {
 
-doSystemConfig(){
-return 0
+  printHead0 "INSTALLING ${COIN_NAME}"
+  sleep 1
+  mkdir -p /home/${USER_NAME}/.local/bin
+  find /tmp/extract -type f | xargs chmod 755
+  find /tmp/extract -type f -exec mv -- "{}" /home/${USER_NAME}/.local/bin \;
+  rm -rf /tmp/extract
+  chown -R ${USER_NAME}:${USER_NAME} /home/${USER_NAME}/.local
+
 }
+
 
 ## Get Port and do ufw
 doPorts() {
-return 0
+  prettySection "CONFIGURING PORTS"
+  sleep 1
+  # Find open port.
+  read -r LOWERPORT UPPERPORT < /proc/sys/net/ipv4/ip_local_port_range
+  while :
+  do
+    PORTA=$(shuf -i "$LOWERPORT"-"$UPPERPORT" -n 1)
+    ss -lpn 2>/dev/null | grep -q ":$PORTA " || break
+  done
+
+  # Find open port if one wasn't provided.
+  if [ -z "$PORTB" ]
+  then
+    while :
+    do
+      PORTB=$(shuf -i "$LOWERPORT"-"$UPPERPORT" -n 1)
+      ss -lpn 2>/dev/null | grep -q ":$PORTB " || break
+    done
+  fi
+
+  # Open up port.
+  ufw allow ${PORTB}
+  echo "y" | ufw enable
+  ufw reload
 }
+
 ## make config file
 doConfigs() {
 return 0
 }
 
 ## get BootStrap
-getBootStrap() {
-return 0
+doBootStrap() {
+  prettySection "BOOTSTRAPPING"
+  sleep 1
+  # Monitor block count and wait for it to be caught up.
+  if [ -z "$var" ]
+  then
+        printHead1 "BOOTSTRAP_URL is empty"
+  else
+        printHead1 "No Bootstrap functionality yet"
+  fi
 }
 
 ## Enable & Start
@@ -472,8 +526,7 @@ waitOnProgram() {
 ################################################################################
 ## Main Program Run
 
-SWAP="$(swapon -s)"
-printHead2 "${SWAP}"
+
 
 << CMT
 
@@ -482,10 +535,13 @@ doSystemValidation
 doSystemVars
 doSystemPackages
 doReview
-#setInputs
-#doReview
-
 CMT
+
+doDownload
+doInstall
+doPorts
+
+
 
 
 
