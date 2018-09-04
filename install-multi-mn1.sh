@@ -382,7 +382,7 @@ doInstall() {
 
 ## Get Port and do ufw
 doPorts() {
-  prettySection "CONFIGURING PORTS"
+  printHead0 "CONFIGURING PORTS"
   sleep 1
   # Find open port.
   read -r LOWERPORT UPPERPORT < /proc/sys/net/ipv4/ip_local_port_range
