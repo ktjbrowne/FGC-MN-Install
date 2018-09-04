@@ -527,16 +527,11 @@ waitOnProgram() {
 ## Main Program Run
 
 
-
-<< CMT
-
 doWelcome
 doSystemValidation
 doSystemVars
 doSystemPackages
 doReview
-CMT
-
 doDownload
 doInstall
 doPorts
