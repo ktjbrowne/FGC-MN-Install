@@ -146,7 +146,7 @@ fi
 
 echo
 unattended-upgrade &
-waitOnProgram  "upgrading software"
+waitOnProgram  "upgrading software, please wait some time"
 #sleep 0.5
 
 # Update system clock.
@@ -180,7 +180,7 @@ cp ./fantasygoldd /usr/local/bin
 cp ./fantasygold-cli /usr/local/bin
 cp ./fantasygold-tx /usr/local/bin
 cp ./fantasygold-qt /usr/local/bin
-rm -rf fantasygold-$FGCVERSION
+#rm -rf fantasygold-$FGCVERSION
 
 # Create .fantasygold directory
 mkdir $USERHOME/.fantasygold
@@ -190,6 +190,7 @@ sleep 1
 
 wget $BOOTSTRAPURL
 tar -xzf $BOOTSTRAPFILE -C $USERHOME/.fantasygold
+rm $BOOTSTRAPFILE
 
 # Install bootstrap file
 #if [[ ("$BOOTSTRAP" == "y" || "$BOOTSTRAP" == "Y" || "$BOOTSTRAP" == "") ]]; then
