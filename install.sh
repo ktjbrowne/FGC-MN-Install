@@ -155,6 +155,7 @@ timedatectl set-ntp on
 
 printHead1 "installing fail2ban"
 sleep 0.5
+apt-get -qq install aptitude
 aptitude -y -q install fail2ban
 service fail2ban restart
 
