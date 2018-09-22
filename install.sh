@@ -83,10 +83,7 @@ printHead0 "ASKING FOR INFORMATION"
 
 read -e -p "Server IP Address: " -i $EXTERNALIP -e IP
 read -e -p "Masternode Private Key (e.g. 7edfjLCUzGczZi3JQw8GHp434R9kNY33eFyMGeKRymkB56G4324h # THE KEY YOU GENERATED EARLIER) : " KEY
-#read -e -p "Install Fail2ban? [Y/n] : " FAIL2BAN
-#read -e -p "Install UFW and configure ports? [Y/n] : " UFW
 
-#clear
 
 # Generate random passwords
 RPCUSER=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
@@ -94,6 +91,7 @@ RPCPASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
 
 # update packages and upgrade Ubuntu
 printHead0 "INSTALLING DEPENDENCIES"
+sleep 0.5
 printHead1 "updating system"
 sleep 0.5
 # Update the system.
@@ -103,7 +101,6 @@ DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -
 #apt-get -f install -y
 DEBIAN_FRONTEND=noninteractive apt-get -yq -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 
-sleep 0.5
 
 echo
 apt-get -f install -y &
