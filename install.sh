@@ -258,7 +258,7 @@ until su -c "fantasygold-cli startmasternode local false 2>/dev/null | grep 'suc
   for (( i=0; i<${#CHARS}; i++ )); do
     sleep 5
     #echo -en "${CHARS:$i:1}" "\r"
-  #  clear
+    clear
     echo "Service Started. Your masternode is syncing.
     When Current = Synced then select your MN in the local wallet and start it.
     Script should auto finish here."
