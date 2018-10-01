@@ -8,6 +8,7 @@ FGCVERSION="1.2.5"
 BOOTSTRAPURL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/v1.2.5/FGC-Bootstrap-1.2.5-20180922.tar.gz"
 BOOTSTRAPFILE="FGC-Bootstrap-1.2.5-20180922.tar.gz"
 
+SPINNER="/-\\|"
 ##############################################################################
 ##Functions
 printHead0() {
