@@ -81,9 +81,10 @@ USER=root
 USERHOME=`eval echo "~$USER"`
 
 printHead0 "ASKING FOR INFORMATION"
+printHead1 "Please Confirm IP and PK [hit enter when confirming]"
 
-read -e -p "Server IP Address: " -i $EXTERNALIP -e IP
-read -e -p "Masternode Private Key (e.g. 7edfjLCUzGczZi3JQw8GHp434R9kNY33eFyMGeKRymkB56G4324h # THE KEY YOU GENERATED EARLIER) : " KEY
+read -e -p "Confirm Server IP Address: " -i $EXTERNALIP -e IP
+read -e -p "Enter your Masternode Private Key : " KEY
 
 
 # Generate random passwords
