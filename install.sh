@@ -318,7 +318,19 @@ printHead0 "STARTING FGC"
 sudo systemctl enable fantasygoldd
 sudo systemctl start fantasygoldd
 sudo systemctl start fantasygoldd.service
-sleep 5
+printHead0 "WAITING 30 seconds for wallet loading"
+sleep 3
+printHead1 "Hi, Welcome to the FGC Community"
+sleep 3
+printHead1 "Check out our discord for the latest updates https://discord.gg/dGr9kU9"
+sleep 3
+printHead1 "Check out https://fantasygold.io"
+sleep 3
+printHead1 "back to waiting :) .. not long more..."
+sleep 3
+printHead1 "thanks again, looking forward to sharing our successes with your..."
+printHead1 "The FGC Team"
+sleep 15
 
 #clear
 
