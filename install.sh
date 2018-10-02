@@ -6,7 +6,7 @@ TARBALLURL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/v1
 TARBALLNAME="FantasyGold-1.2.5-Linux-x64.tar.gz"
 FGCVERSION="1.2.5"
 BOOTSTRAPURL="https://github.com/FantasyGold/FantasyGold-Core/releases/download/v1.2.5/FGC-Bootstrap-1.2.5.tar.gz"
-BOOTSTRAPFILE="FGC-Bootstrap-1.2.5-20180922.tar.gz"
+BOOTSTRAPFILE="FGC-Bootstrap-1.2.5.tar.gz"
 
 SPINNER="/-\\|"
 ##############################################################################
