@@ -191,11 +191,6 @@ wget $BOOTSTRAPURL
 tar -xzf $BOOTSTRAPFILE -C $USERHOME/.fantasygold
 rm $BOOTSTRAPFILE
 
-# Install bootstrap file
-#if [[ ("$BOOTSTRAP" == "y" || "$BOOTSTRAP" == "Y" || "$BOOTSTRAP" == "") ]]; then
-#  echo "Installing bootstrap file..."
-#  wget $BOOTSTRAPURL && unzip $BOOTSTRAPARCHIVE -d $USERHOME/.fantasygold/ && rm $BOOTSTRAPARCHIVE
-#fi
 
 printHead0 "CREATING CONFIGS"
 
@@ -215,15 +210,89 @@ bind=${IP}:57810
 masternodeaddr=${IP}
 masternodeprivkey=${KEY}
 masternode=1
-addnode=45.33.115.240:57810
-addnode=45.79.203.106:57810
-addnode=45.79.151.214:57810
-addnode=176.58.126.105:57810
-addnode=139.162.190.155:57810
-addnode=104.238.161.199:57810
-addnode=45.77.79.164:57810
-addnode=217.69.3.8:57810
-addnode=128.199.170.82:57810
+addnode=104.238.183.8
+addnode=45.76.85.231
+addnode=149.28.131.163
+addnode=167.99.165.119
+addnode=172.104.74.245
+addnode=207.148.9.63
+addnode=45.79.66.44
+addnode=95.179.161.163
+addnode=45.63.64.205
+addnode=138.197.158.185
+addnode=45.77.77.95
+addnode=66.42.72.94
+addnode=144.202.50.117
+addnode=140.82.56.104
+addnode=199.247.29.40
+addnode=45.33.8.12
+addnode=173.255.251.236
+addnode=69.164.203.37
+addnode=50.116.14.219
+addnode=178.79.181.239
+addnode=45.56.85.177
+addnode=45.77.233.14
+addnode=139.162.207.34
+addnode=45.32.210.18
+addnode=23.95.90.101
+addnode=139.59.63.203
+addnode=18.196.103.36
+addnode=107.172.168.134
+addnode=159.89.101.98
+addnode=194.182.67.195
+addnode=107.191.51.162
+addnode=128.199.170.82
+addnode=142.93.140.134
+addnode=63.209.32.213
+addnode=80.211.188.25
+addnode=207.154.249.253
+addnode=178.128.1.157
+addnode=104.207.159.15
+addnode=66.228.47.113
+addnode=209.250.237.152
+addnode=192.155.93.240
+addnode=178.62.194.180
+addnode=81.169.210.75
+addnode=173.230.141.205
+addnode=207.148.7.121
+addnode=149.28.48.60
+addnode=45.76.45.228
+addnode=206.189.14.124
+addnode=95.179.132.132
+addnode=85.121.197.58
+addnode=213.52.129.183
+addnode=138.68.234.191
+addnode=107.175.144.212
+addnode=204.48.22.121
+addnode=165.227.48.250
+addnode=217.61.109.164
+addnode=184.75.221.115
+addnode=198.74.54.156
+addnode=24.91.54.92
+addnode=188.166.111.128
+addnode=138.68.90.187
+addnode=62.45.201.105
+addnode=188.187.188.194
+addnode=195.181.213.240
+addnode=185.227.110.184
+addnode=93.116.29.98
+addnode=104.156.225.108
+addnode=159.203.66.230
+addnode=217.69.15.130
+addnode=172.104.217.26
+addnode=84.87.28.114
+addnode=149.28.244.137
+addnode=185.203.119.115
+addnode=23.94.7.177
+addnode=207.246.86.123
+addnode=173.199.114.221
+addnode=108.61.117.243
+addnode=8.9.31.247
+addnode=45.32.68.103
+addnode=104.248.196.74
+addnode=206.189.117.121
+addnode=80.240.25.90
+
 EOL
 chmod 0600 $USERHOME/.fantasygold/fantasygold.conf
 chown -R $USER:$USER $USERHOME/.fantasygold
@@ -249,6 +318,7 @@ printHead0 "STARTING FGC"
 sudo systemctl enable fantasygoldd
 sudo systemctl start fantasygoldd
 sudo systemctl start fantasygoldd.service
+sleep 5
 
 #clear
 
